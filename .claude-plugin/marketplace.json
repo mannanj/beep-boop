@@ -1,0 +1,14 @@
+{
+  "name": "claude-cues",
+  "description": "Gentle sound cues for Claude Code — original audio personalities, one per session.",
+  "owner": { "name": "Mannan Javid", "email": "mannanjavid@protonmail.com" },
+  "plugins": [
+    {
+      "name": "claude-cues",
+      "source": "./",
+      "description": "Gentle sound cues for Claude Code — a different sound personality each session tells you when your agent starts, finishes, errors, or needs you.",
+      "license": "MIT",
+      "homepage": "https://claude-cues.pages.dev"
+    }
+  ]
+}

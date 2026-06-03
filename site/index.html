@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>claude-cues — gentle sound cues for Claude Code</title>
+<meta name="description" content="Give Claude Code a voice. Gentle sound personalities that tell you when your agent starts, finishes, errors, or needs you — so you can walk away.">
+<meta property="og:title" content="claude-cues — gentle sound cues for Claude Code">
+<meta property="og:description" content="Give Claude Code a voice. Hear every personality, then install with one command.">
+<meta property="og:url" content="https://claude-cues.pages.dev">
+<style>
+  :root {
+    --bg: #0d0e12;
+    --bg-raise: #14161c;
+    --bg-card: #181b22;
+    --border: #262a33;
+    --text: #d8dce4;
+    --dim: #8a90a0;
+    --accent: #e8956d;       /* warm clay */
+    --accent-dim: #b06b48;
+    --green: #7fd88f;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; }
+  nav .brand { font-family: var(--mono); font-weight: 600; color: var(--text); }
+  nav .brand::before { content: "♪ "; color: var(--accent); }
+  nav .gh { display: flex; align-items: center; gap: 10px; }
+  nav .gh img { height: 20px; }
+
+  header { padding: 72px 0 48px; text-align: center; }
+  h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 700; letter-spacing: -0.02em; }
+  h1 .voice { color: var(--accent); }
+  header .sub { color: var(--dim); font-size: 1.15rem; max-width: 560px; margin: 16px auto 32px; }
+
+  .install-box { display: inline-flex; align-items: center; gap: 12px; background: var(--bg-raise);
+    border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; font-family: var(--mono);
+    font-size: 0.95rem; text-align: left; }
+  .install-box .lines span { display: block; }
+  .install-box .lines .p { color: var(--dim); user-select: none; }
+  .install-box button { background: var(--accent); color: #1a1208; border: 0; border-radius: 6px;
+    padding: 8px 14px; font-family: var(--mono); font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+  .install-box button:hover { background: #f0a87f; }
+  header .meta { color: var(--dim); font-size: 0.85rem; margin-top: 14px; }
+  header .meta a { color: var(--dim); text-decoration: underline; }
+
+  .unlock { margin-top: 40px; color: var(--dim); font-size: 0.9rem; display: flex; justify-content: center;
+    align-items: center; gap: 16px; }
+  .unlock .mute-btn { background: none; border: 1px solid var(--border); color: var(--dim); border-radius: 6px;
+    padding: 4px 12px; cursor: pointer; font-size: 0.85rem; }
+  .unlock .mute-btn.muted { color: var(--accent); border-color: var(--accent-dim); }
+
+  section { padding: 48px 0; border-top: 1px solid var(--border); }
+  h2 { font-family: var(--mono); font-size: 0.9rem; color: var(--accent); text-transform: uppercase;
+    letter-spacing: 0.15em; margin-bottom: 28px; }
+  h2::before { content: "## "; color: var(--dim); }
+
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+  .pcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 22px;
+    cursor: pointer; transition: border-color .15s, transform .1s; text-align: left; color: var(--text); font-family: var(--sans); }
+  .pcard:hover { border-color: var(--accent-dim); transform: translateY(-2px); }
+  .pcard.active { border-color: var(--accent); }
+  .pcard .pname { font-family: var(--mono); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between; }
+  .pcard .pname .play { color: var(--accent); font-size: 0.95rem; }
+  .pcard .pchar { color: var(--dim); font-size: 0.9rem; margin-top: 6px; }
+  .cards-note { color: var(--dim); font-size: 0.85rem; margin-top: 14px; }
+
+  .term { margin-top: 36px; background: #0a0b0e; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .term .bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg-raise);
+    border-bottom: 1px solid var(--border); }
+  .term .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--border); }
+  .term .dot:nth-child(1) { background: #f47067; } .term .dot:nth-child(2) { background: #e2b340; }
+  .term .dot:nth-child(3) { background: #57ab5a; }
+  .term .bar .title { font-family: var(--mono); color: var(--dim); font-size: 0.78rem; margin-left: 8px; }
+  .term .screen { padding: 18px; font-family: var(--mono); font-size: 0.9rem; min-height: 130px; }
+  .term .log div { margin-bottom: 4px; }
+  .term .log .sys { color: var(--dim); }
+  .term .log .you { color: var(--text); }
+  .term .log .claude { color: var(--green); }
+  .term .inrow { display: flex; gap: 8px; margin-top: 10px; }
+  .term .inrow .ps1 { color: var(--accent); }
+  .term input { flex: 1; background: none; border: 0; outline: 0; color: var(--text);
+    font-family: var(--mono); font-size: 0.9rem; caret-color: var(--accent); }
+  .evbtns { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 18px; border-top: 1px solid var(--border); }
+  .evbtns button { background: var(--bg-card); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--mono); font-size: 0.8rem; border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+  .evbtns button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .how { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 640px) { .how { grid-template-columns: 1fr; } }
+  .how .hcard { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .how .hcard h3 { font-family: var(--mono); font-size: 0.95rem; margin-bottom: 8px; color: var(--accent); }
+  .how .hcard p { color: var(--dim); font-size: 0.9rem; }
+
+  .install-full pre { background: var(--bg-raise); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 18px; font-family: var(--mono); font-size: 0.9rem; overflow-x: auto; position: relative; }
+  .install-full pre .c { color: var(--dim); }
+  .install-full .alt { color: var(--dim); font-size: 0.9rem; margin-top: 14px; }
+
+  details { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; background: var(--bg-card); }
+  details summary { padding: 14px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; list-style: none; }
+  details summary::before { content: "▸ "; color: var(--accent); }
+  details[open] summary::before { content: "▾ "; }
+  details .a { padding: 0 18px 14px; color: var(--dim); font-size: 0.92rem; }
+
+  footer { padding: 40px 0 60px; border-top: 1px solid var(--border); text-align: center;
+    color: var(--dim); font-size: 0.85rem; }
+  footer .links { margin-bottom: 8px; }
+  footer .links a { margin: 0 10px; color: var(--dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav>
+    <span class="brand">claude-cues</span>
+    <span class="gh">
+      <a href="https://github.com/mannanj/claude-cues" aria-label="GitHub repo">
+        <img src="https://img.shields.io/github/stars/mannanj/claude-cues?style=flat&label=★&color=2b2f3a&labelColor=14161c" alt="GitHub stars">
+      </a>
+      <a href="https://github.com/mannanj/claude-cues">GitHub →</a>
+    </span>
+  </nav>
+
+  <header>
+    <h1>Give Claude Code <span class="voice">a&nbsp;voice.</span></h1>
+    <p class="sub">Gentle sound cues for every move your agent makes — start, done, error,
+      <em>needs&nbsp;you</em>. So you can walk away. Free, open source, one command.</p>
+
+    <div class="install-box">
+      <div class="lines" id="install-cmd">
+        <span><span class="p">&gt; </span>/plugin marketplace add mannanj/claude-cues</span>
+        <span><span class="p">&gt; </span>/plugin install claude-cues@claude-cues</span>
+      </div>
+      <button id="copy-btn" aria-label="Copy install commands">Copy</button>
+    </div>
+    <p class="meta">macOS · Linux · ~200KB · no dependencies · <a href="https://github.com/mannanj/claude-cues">view source</a></p>
+
+    <div class="unlock">
+      <span>▶ click a sound below to listen</span>
+      <button class="mute-btn" id="mute-btn">🔊 sound on</button>
+    </div>
+  </header>
+
+  <section id="hear">
+    <h2>Hear it</h2>
+    <div class="cards">
+      <button class="pcard active" data-p="chime">
+        <span class="pname">chime <span class="play">▶ play</span></span>
+        <span class="pchar">crisp · bright · bell-like</span>
+      </button>
+      <button class="pcard" data-p="hum">
+        <span class="pname">hum <span class="play">▶ play</span></span>
+        <span class="pchar">warm · low · rounded</span>
+      </button>
+      <button class="pcard" data-p="ping">
+        <span class="pname">ping <span class="play">▶ play</span></span>
+        <span class="pchar">minimal · dry · precise</span>
+      </button>
+    </div>
+    <p class="cards-note">Every session gets <strong>one</strong> consistent voice, rotating session to session.
+      Pick a personality above, then trigger the real events below.</p>
+
+    <div class="term">
+      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="title">claude — try it: type and press enter</span></div>
+      <div class="screen">
+        <div class="log" id="term-log">
+          <div class="sys">✶ session started — personality: <span id="term-p">chime</span></div>
+        </div>
+        <div class="inrow"><span class="ps1">&gt;</span>
+          <input id="term-in" type="text" placeholder="type anything, press enter…" autocomplete="off" spellcheck="false"></div>
+      </div>
+      <div class="evbtns">
+        <button data-ev="start">SessionStart</button>
+        <button data-ev="submit">Submit</button>
+        <button data-ev="done">Done</button>
+        <button data-ev="permission">Permission</button>
+        <button data-ev="error">Error</button>
+        <button data-ev="precompact">PreCompact</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>How it works</h2>
+    <div class="how">
+      <div class="hcard"><h3>hooks</h3>
+        <p>Claude Code hooks fire on six session events and call one tiny script. Fire-and-forget — it never blocks or errors your session.</p></div>
+      <div class="hcard"><h3>rotates</h3>
+        <p>One personality per session, next one next session. Distinct voices, never mixed mid-session, never stale.</p></div>
+      <div class="hcard"><h3>yours</h3>
+        <p>A personality is just a folder of mp3s. Drop in your own and it joins the rotation. All bundled audio is original and CC0.</p></div>
+    </div>
+  </section>
+
+  <section class="install-full">
+    <h2>Install</h2>
+    <pre><span class="c"># inside Claude Code</span>
+/plugin marketplace add mannanj/claude-cues
+/plugin install claude-cues@claude-cues</pre>
+    <p class="alt">No <code>/plugin</code>? <code>git clone https://github.com/mannanj/claude-cues && cd claude-cues && ./install.sh</code>
+      — a short, readable script that merges the hooks into your settings (and <code>./uninstall.sh</code> removes them).</p>
+  </section>
+
+  <section>
+    <h2>FAQ</h2>
+    <details><summary>Does it slow Claude Code down?</summary>
+      <div class="a">No. Each hook backgrounds the sound player and returns immediately. There's no daemon, no network, no telemetry — just a shell script and 24 small mp3s.</div></details>
+    <details><summary>Can I use my own sounds?</summary>
+      <div class="a">Yes. A personality is a folder: <code>sounds/&lt;name&gt;/&lt;event&gt;/*.mp3</code>. Add one and it joins the session rotation automatically.</div></details>
+    <details><summary>How do I turn it off?</summary>
+      <div class="a"><code>/claude-cues:toggle</code> inside Claude Code, or set <code>ENABLED=0</code> in <code>~/.claude/claude-cues/config</code>. Uninstall is one command.</div></details>
+    <details><summary>Windows?</summary>
+      <div class="a">Not yet — the script no-ops silently on unsupported platforms, so nothing breaks. PRs welcome.</div></details>
+    <details><summary>Is the audio really free?</summary>
+      <div class="a">Yes — every sound was synthesized for this project and is dedicated to the public domain (CC0). The code is MIT.</div></details>
+  </section>
+
+  <footer>
+    <div class="links">
+      <a href="https://github.com/mannanj/claude-cues">GitHub</a> ·
+      <a href="https://github.com/mannanj/claude-cues/blob/main/LICENSE">MIT</a> ·
+      <a href="https://github.com/mannanj/claude-cues/blob/main/sounds/LICENSE">CC0 audio</a>
+    </div>
+    made with ♪ for people who tab away
+  </footer>
+</div>
+
+<script>
+(function () {
+  var GAIN = 3.0;                 // tones are mastered quiet; match the plugin's afplay -v 3.0
+  var SUBMIT_VARIANTS = 3;
+  var ctx = null, gain = null, buffers = {}, muted = false;
+  var active = 'chime';
+
+  function audioCtx() {
+    if (!ctx) {
+      ctx = new (window.AudioContext || window.webkitAudioContext)();
+      gain = ctx.createGain();
+      gain.gain.value = GAIN;
+      gain.connect(ctx.destination);
+    }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+
+  function url(p, ev, variant) {
+    return 'sounds/' + p + '/' + ev + '/' + p + '-' + ev + (variant ? '-' + variant : '') + '.mp3';
+  }
+
+  function load(u) {
+    if (buffers[u]) return buffers[u];
+    buffers[u] = fetch(u)
+      .then(function (r) { return r.arrayBuffer(); })
+      .then(function (ab) { return audioCtx().decodeAudioData(ab); });
+    return buffers[u];
+  }
+
+  function play(p, ev) {
+    if (muted) return;
+    var variant = ev === 'submit' ? (1 + Math.floor(Math.random() * SUBMIT_VARIANTS)) : null;
+    audioCtx();
+    load(url(p, ev, variant)).then(function (buf) {
+      var src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(gain);
+      src.start();
+    }).catch(function () { /* graceful silence, like the real thing */ });
+  }
+
+  /* personality cards */
+  var cards = document.querySelectorAll('.pcard');
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      cards.forEach(function (x) { x.classList.remove('active'); });
+      c.classList.add('active');
+      active = c.dataset.p;
+      document.getElementById('term-p').textContent = active;
+      logLine('sys', '✶ session started — personality: ' + active);
+      play(active, 'start');
+    });
+  });
+
+  /* terminal demo */
+  var log = document.getElementById('term-log');
+  var input = document.getElementById('term-in');
+  function logLine(cls, text) {
+    var d = document.createElement('div');
+    d.className = cls;
+    d.textContent = text;
+    log.appendChild(d);
+    while (log.children.length > 6) log.removeChild(log.firstChild);
+  }
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' || !input.value.trim()) return;
+    var text = input.value.trim();
+    input.value = '';
+    logLine('you', '> ' + text);
+    play(active, 'submit');
+    setTimeout(function () { logLine('sys', '✶ working…'); }, 350);
+    setTimeout(function () { logLine('claude', '✔ done'); play(active, 'done'); }, 1500);
+  });
+
+  var labels = { start: '✶ session started', submit: '> prompt submitted', done: '✔ done',
+    permission: '⏸ Claude needs your permission', error: '✘ tool failed', precompact: '… compacting context' };
+  document.querySelectorAll('.evbtns button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var ev = b.dataset.ev;
+      logLine(ev === 'done' ? 'claude' : 'sys', labels[ev]);
+      play(active, ev);
+    });
+  });
+
+  /* mute */
+  var muteBtn = document.getElementById('mute-btn');
+  muteBtn.addEventListener('click', function () {
+    muted = !muted;
+    muteBtn.classList.toggle('muted', muted);
+    muteBtn.textContent = muted ? '🔇 muted' : '🔊 sound on';
+  });
+
+  /* copy install */
+  document.getElementById('copy-btn').addEventListener('click', function () {
+    var cmds = '/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues';
+    navigator.clipboard.writeText(cmds).then(function () {
+      var b = document.getElementById('copy-btn');
+      b.textContent = 'Copied!';
+      setTimeout(function () { b.textContent = 'Copy'; }, 1500);
+    });
+  });
+})();
+</script>
+</body>
+</html>
