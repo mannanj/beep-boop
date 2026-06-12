@@ -79,37 +79,37 @@
   h2 { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); text-transform: uppercase;
     letter-spacing: 0.18em; margin-bottom: 30px; display: inline-flex; align-items: center; gap: 8px;
     cursor: pointer; user-select: none; }
-  h2::before { content: "## "; color: var(--faint); }
   h2 .replay { font-size: 0.7rem; color: var(--faint); border: 1px solid var(--border); border-radius: 5px;
     padding: 2px 7px; letter-spacing: 0.05em; opacity: 0; transition: opacity .15s; }
   h2:hover .replay { opacity: 1; }
   h2 .replay::before { content: "▶ "; }
 
-  /* selector */
+  /* selector — connected segments, touching */
   .seg { display: inline-flex; background: var(--bg-raise); border: 1px solid var(--border-lit);
-    border-radius: 12px; padding: 5px; gap: 4px; }
-  .seg button { background: none; border: 0; color: var(--dim); font-family: var(--mono); font-weight: 600;
-    font-size: 0.95rem; padding: 10px 22px; border-radius: 8px; cursor: pointer; transition: all .15s;
-    display: flex; flex-direction: column; align-items: center; gap: 3px; line-height: 1.2; }
+    border-radius: 12px; overflow: hidden; }
+  .seg button { background: none; border: 0; border-right: 1px solid var(--border-lit); color: var(--dim);
+    font-family: var(--mono); font-weight: 600; font-size: 0.95rem; padding: 10px 22px; cursor: pointer;
+    transition: all .15s; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.2; }
+  .seg button:last-child { border-right: 0; }
+  .seg button .top { display: flex; align-items: center; gap: 7px; }
+  .seg button .pi { color: var(--accent); font-size: 0.9rem; }
   .seg button .ch { font-size: 0.68rem; font-weight: 400; color: var(--faint); }
-  .seg button:hover { color: var(--text); }
+  .seg button:hover { color: var(--text); background: rgba(255,255,255,0.02); }
   .seg button.active { background: var(--accent); color: #1a1208; }
   .seg button.active .ch { color: #5a3a1f; }
+  .seg button.active .pi { color: #1a1208; }
 
-  .audition { margin-top: 22px; }
-  .audition .lbl { color: var(--faint); font-family: var(--mono); font-size: 0.78rem;
-    text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
-  .evgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .evgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 12px; }
   @media (max-width: 720px) { .evgrid { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 420px) { .evgrid { grid-template-columns: repeat(2, 1fr); } }
   .ev { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px;
     cursor: pointer; transition: border-color .15s, transform .1s, background .15s; text-align: center;
     font-family: var(--mono); }
   .ev:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .ev.fire { border-color: var(--accent); background: rgba(239,155,111,0.08); }
+  .ev.sel { border-color: var(--accent); background: rgba(239,155,111,0.10); }
   .ev .ic { font-size: 1.15rem; display: block; margin-bottom: 6px; color: var(--accent); }
-  .ev .nm { font-size: 0.8rem; color: var(--text); }
-  .ev .ds { font-size: 0.68rem; color: var(--faint); margin-top: 3px; }
+  .ev .nm { display: block; font-size: 0.8rem; color: var(--text); }
+  .ev .ds { display: block; font-size: 0.68rem; color: var(--faint); margin-top: 3px; }
 
   /* terminal demo */
   .term { margin-top: 34px; background: #08090c; border: 1px solid var(--border-lit); border-radius: 14px;
@@ -129,14 +129,6 @@
   .term .inrow .ps1 { color: var(--accent); }
   .term input { flex: 1; background: none; border: 0; outline: 0; color: var(--text);
     font-family: var(--mono); font-size: 0.9rem; caret-color: var(--accent); }
-
-  /* install */
-  .install-full pre { background: var(--bg-raise); border: 1px solid var(--border-lit); border-radius: 12px;
-    padding: 18px 20px; font-family: var(--mono); font-size: 0.9rem; overflow-x: auto; line-height: 1.8; }
-  .install-full pre .c { color: var(--faint); }
-  .install-full pre .p { color: var(--accent); }
-  .install-full .alt { color: var(--dim); font-size: 0.9rem; margin-top: 16px; }
-  .install-full code { font-family: var(--mono); color: var(--text); font-size: 0.88em; }
 
   /* faq */
   details { border: 1px solid var(--border); border-radius: 11px; margin-bottom: 10px; background: var(--bg-card); }
@@ -188,24 +180,19 @@
   </header>
 
   <section id="hear" data-cue="submit">
-    <h2>hear it <span class="replay">replay</span></h2>
-
     <div class="seg" role="tablist" aria-label="personality">
-      <button class="active" data-p="chime">chime<span class="ch">bright · bell</span></button>
-      <button data-p="hum">hum<span class="ch">warm · low</span></button>
-      <button data-p="ping">ping<span class="ch">dry · minimal</span></button>
+      <button class="active" data-p="chime"><span class="top"><span class="pi">✦</span>chime</span><span class="ch">bright · bell</span></button>
+      <button data-p="hum"><span class="top"><span class="pi">∿</span>hum</span><span class="ch">warm · low</span></button>
+      <button data-p="ping"><span class="top"><span class="pi">•</span>ping</span><span class="ch">dry · minimal</span></button>
     </div>
 
-    <div class="audition">
-      <div class="lbl">audition any cue</div>
-      <div class="evgrid" id="evgrid">
-        <button class="ev" data-ev="start"><span class="ic">✶</span><span class="nm">start</span><span class="ds">session begins</span></button>
-        <button class="ev" data-ev="submit"><span class="ic">➤</span><span class="nm">submit</span><span class="ds">you send</span></button>
-        <button class="ev" data-ev="done"><span class="ic">✔</span><span class="nm">done</span><span class="ds">finished</span></button>
-        <button class="ev" data-ev="permission"><span class="ic">⏸</span><span class="nm">permission</span><span class="ds">needs you</span></button>
-        <button class="ev" data-ev="error"><span class="ic">✘</span><span class="nm">error</span><span class="ds">tool failed</span></button>
-        <button class="ev" data-ev="precompact"><span class="ic">…</span><span class="nm">precompact</span><span class="ds">compacting</span></button>
-      </div>
+    <div class="evgrid" id="evgrid">
+      <button class="ev sel" data-ev="start"><span class="ic">✶</span><span class="nm">start</span><span class="ds">session begins</span></button>
+      <button class="ev" data-ev="submit"><span class="ic">➤</span><span class="nm">submit</span><span class="ds">you send</span></button>
+      <button class="ev" data-ev="done"><span class="ic">✔</span><span class="nm">done</span><span class="ds">finished</span></button>
+      <button class="ev" data-ev="permission"><span class="ic">⏸</span><span class="nm">permission</span><span class="ds">needs you</span></button>
+      <button class="ev" data-ev="error"><span class="ic">✘</span><span class="nm">error</span><span class="ds">tool failed</span></button>
+      <button class="ev" data-ev="precompact"><span class="ic">…</span><span class="nm">precompact</span><span class="ds">compacting</span></button>
     </div>
 
     <div class="term">
@@ -221,17 +208,8 @@
     </div>
   </section>
 
-  <section class="install-full" data-cue="permission">
-    <h2>install <span class="replay">replay</span></h2>
-    <pre><span class="c"># inside Claude Code</span>
-<span class="p">&gt;</span> /plugin marketplace add mannanj/claude-cues
-<span class="p">&gt;</span> /plugin install claude-cues@claude-cues</pre>
-    <p class="alt">No <code>/plugin</code>? <code>git clone https://github.com/mannanj/claude-cues &amp;&amp; cd claude-cues &amp;&amp; ./install.sh</code>
-      merges the hooks into your settings. <code>./uninstall.sh</code> removes them.</p>
-  </section>
-
   <section data-cue="precompact">
-    <h2>faq <span class="replay">replay</span></h2>
+    <h2>faq</h2>
     <details><summary>Does it slow Claude Code down?</summary>
       <div class="a">No. Each hook backgrounds the player and returns instantly. No daemon, no network, no telemetry — a shell script and 24 small mp3s.</div></details>
     <details><summary>Can I use my own sounds?</summary>
@@ -370,7 +348,19 @@
     play('start', { force: true });
   });
 
-  /* ---------- personality selector ---------- */
+  /* ---------- event selector (which cue the voices play) ---------- */
+  var selectedEv = 'start';
+  var evBtns = document.querySelectorAll('.ev');
+  evBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      evBtns.forEach(function (x) { x.classList.remove('sel'); });
+      b.classList.add('sel');
+      selectedEv = b.dataset.ev;
+      play(selectedEv, { force: true });
+    });
+  });
+
+  /* ---------- personality selector — plays the currently selected cue ---------- */
   var segBtns = document.querySelectorAll('.seg button');
   segBtns.forEach(function (b) {
     b.addEventListener('click', function () {
@@ -379,16 +369,7 @@
       active = b.dataset.p;
       document.getElementById('term-p').textContent = active;
       logLine('sys', '✶ voice: ' + active);
-      play('start', { force: true });
-    });
-  });
-
-  /* ---------- event audition grid ---------- */
-  document.querySelectorAll('.ev').forEach(function (b) {
-    b.addEventListener('click', function () {
-      b.classList.add('fire');
-      setTimeout(function () { b.classList.remove('fire'); }, 420);
-      play(b.dataset.ev, { force: true });
+      play(selectedEv, { force: true });
     });
   });
 
