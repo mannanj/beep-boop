@@ -4,424 +4,654 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>claude-cues — give Claude Code a voice</title>
-<meta name="description" content="Sound cues for every move Claude Code makes — start, done, blocked, needs you. Leave the terminal and let your ears do the thinking. Free, open source, one command.">
+<meta name="description" content="Sound cues for every move Claude Code makes: start, done, blocked, needs you. Walk away from the terminal and let your ears do the thinking. Free, open source, one command.">
 <meta property="og:title" content="claude-cues — give Claude Code a voice">
-<meta property="og:description" content="Hear it work. Claude Code gets four sounds — start, done, blocked, needs you. Hear every personality, then install with one command.">
+<meta property="og:description" content="Hear it work. Claude Code gets six soft cues, one per moment. Audition every voice on a live oscilloscope, then install with one command.">
 <meta property="og:url" content="https://claude-cues.pages.dev">
-<meta name="theme-color" content="#0b0c10">
+<meta name="theme-color" content="#0c0b0a">
+<!--
+  claude-cues landing page.
+  Concept: an amber-phosphor oscilloscope instrument. The hero is a real, working
+  device: pick a voice, press a key, and the scope draws the actual time-domain
+  waveform of the cue while it plays. Sound made visible. Native CSS + vanilla JS,
+  zero dependencies, zero webfonts, single static file — matching the product's
+  "~200KB, zero deps" identity. One accent (phosphor amber), one dark theme.
+-->
 <style>
   :root {
-    --bg: #0b0c10;
-    --bg-raise: #131520;
-    --bg-card: #15171f;
-    --border: #23262f;
-    --border-lit: #2e3340;
-    --text: #e3e6ee;
-    --dim: #868d9e;
-    --faint: #5b6172;
-    --accent: #ef9b6f;        /* warm clay */
-    --accent-2: #f0c66b;      /* amber */
-    --accent-dim: #b06b48;
-    --green: #84dd97;
-    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    /* warm near-black base, single amber-phosphor accent */
+    --bg:        #0c0b0a;
+    --bg-1:      #141210;
+    --bg-2:      #1b1815;
+    --screen:    #0a0908;   /* scope screen, the darkest surface */
+    --line:      #2a2521;
+    --line-2:    #3b332c;
+    --text:      #efe7dc;
+    --dim:       #aaa093;
+    --faint:     #6c635a;
+    --amber:     #ffb454;   /* the one accent */
+    --amber-hi:  #ffca84;
+    --amber-lo:  #c9802f;
+    --ink:       #1a1206;   /* text on amber */
+    --r-lg: 14px;           /* containers */
+    --r-md: 10px;           /* controls */
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+    --ease: cubic-bezier(.16,1,.3,1);
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); line-height: 1.55;
-    overflow-x: hidden; }
-  a { color: var(--accent); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-  ::selection { background: var(--accent-dim); color: #1a1208; }
+  html { -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--sans); line-height: 1.6; overflow-x: hidden;
+    /* faint warm vignette so the page reads as a lit device, not a flat slab */
+    background-image:
+      radial-gradient(120% 80% at 78% -8%, rgba(255,180,84,.07), transparent 60%),
+      radial-gradient(90% 60% at 8% 4%, rgba(255,180,84,.035), transparent 55%);
+    background-attachment: fixed;
+  }
+  a { color: var(--amber); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; }
+  ::selection { background: var(--amber); color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; border-radius: 4px; }
 
-  /* fixed canvas backdrop */
-  #viz { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none;
-    opacity: 0.9; }
-  .v-glow { position: fixed; left: 50%; top: 38%; width: 120vw; height: 60vh; transform: translate(-50%,-50%);
-    background: radial-gradient(closest-side, rgba(239,155,111,0.10), transparent 70%);
-    z-index: 0; pointer-events: none; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 26px; }
+  .mono { font-family: var(--mono); }
 
-  nav { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; }
-  nav .brand { font-family: var(--mono); font-weight: 600; color: var(--text); font-size: 1rem;
-    cursor: pointer; }
-  nav .brand::before { content: "♪ "; color: var(--accent); }
-  nav .gh { display: flex; align-items: center; gap: 14px; font-family: var(--mono); font-size: 0.85rem; }
-  nav .gh img { height: 20px; vertical-align: middle; }
+  /* ---------- nav ---------- */
+  nav { display: flex; justify-content: space-between; align-items: center; height: 70px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+    font-family: var(--mono); font-weight: 600; font-size: 1.02rem; color: var(--text);
+    background: none; border: 0; padding: 0; letter-spacing: -0.01em; }
+  .brand svg { width: 22px; height: 16px; overflow: visible; }
+  .brand:hover .wv { stroke: var(--amber-hi); }
+  .nav-gh { display: inline-flex; align-items: center; gap: 16px;
+    font-family: var(--mono); font-size: 0.84rem; color: var(--dim); }
+  .nav-gh a { color: var(--dim); }
+  .nav-gh a:hover { color: var(--text); text-decoration: none; }
+  .nav-gh img { height: 20px; display: block; }
 
-  header { padding: 90px 0 56px; text-align: center; }
-  h1 { font-size: clamp(3rem, 11vw, 6.2rem); font-weight: 800; letter-spacing: -0.04em; line-height: 0.95; }
-  h1 .b { background: linear-gradient(100deg, var(--accent), var(--accent-2)); -webkit-background-clip: text;
-    background-clip: text; color: transparent; }
-  header .sub { color: var(--dim); font-size: clamp(1.05rem, 2.4vw, 1.3rem); max-width: 600px;
-    margin: 22px auto 36px; }
-  header .sub b { color: var(--text); font-weight: 600; }
+  /* ---------- hero: asymmetric split ---------- */
+  .hero { display: grid; grid-template-columns: 1.02fr 1fr; gap: 56px; align-items: center;
+    min-height: calc(100dvh - 70px); padding: 24px 0 64px; }
+  /* grid/flex children default to min-width:auto, which lets the nowrap install
+     commands push a column past the viewport. Let them shrink instead. */
+  .hero > * { min-width: 0; }
 
-  .install-box { display: inline-flex; align-items: center; gap: 14px; background: var(--bg-raise);
-    border: 1px solid var(--border-lit); border-radius: 12px; padding: 14px 16px 14px 20px;
-    font-family: var(--mono); font-size: 0.8rem; text-align: left; box-shadow: 0 8px 30px rgba(0,0,0,0.35); }
-  .install-box .lines > span { display: block; white-space: nowrap; }
-  .install-box .lines .p { color: var(--accent); user-select: none; }
-  .install-box button { background: var(--accent); color: #1a1208; border: 0; border-radius: 7px;
-    padding: 9px 16px; font-family: var(--mono); font-weight: 700; cursor: pointer; font-size: 0.82rem; }
-  .install-box button:hover { background: #f4b187; }
-  header .meta { color: var(--faint); font-size: 0.82rem; margin-top: 16px; font-family: var(--mono); }
-  header .meta a { color: var(--faint); text-decoration: underline; }
+  .pitch h1 { font-family: var(--mono); font-weight: 700;
+    font-size: clamp(2.6rem, 6.4vw, 4.5rem); line-height: 0.98; letter-spacing: -0.045em; }
+  .pitch h1 .lit { color: var(--amber); }
+  .pitch .sub { color: var(--dim); font-size: clamp(1.02rem, 1.5vw, 1.18rem);
+    margin: 22px 0 30px; max-width: 30ch; }
+  .pitch .sub b { color: var(--text); font-weight: 600; }
 
-  .enable { margin-top: 34px; display: inline-flex; align-items: center; gap: 14px; }
-  .enable .hint { color: var(--dim); font-size: 0.88rem; }
-  .sound-btn { background: none; border: 1px solid var(--border-lit); color: var(--dim);
-    border-radius: 999px; padding: 8px 18px; cursor: pointer; font-size: 0.85rem; font-family: var(--mono);
-    transition: border-color .15s, color .15s, background .15s; }
-  .sound-btn.on { color: var(--accent); border-color: var(--accent-dim); background: rgba(239,155,111,0.06); }
+  .install { display: flex; align-items: stretch; gap: 0; max-width: 460px;
+    background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-md);
+    overflow: hidden; }
+  .install .cmds { flex: 1; padding: 12px 14px; font-family: var(--mono); font-size: 0.76rem;
+    line-height: 1.85; min-width: 0; }
+  .install .cmds span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .install .cmds .pr { color: var(--amber); user-select: none; }
+  .install button { flex: 0 0 auto; align-self: stretch; background: var(--amber); color: var(--ink);
+    border: 0; padding: 0 18px; font-family: var(--mono); font-weight: 700; font-size: 0.78rem;
+    cursor: pointer; transition: background .15s; }
+  .install button:hover { background: var(--amber-hi); }
+  .install button:active { transform: translateY(1px); }
+  .meta { margin-top: 16px; font-family: var(--mono); font-size: 0.76rem; color: var(--faint); }
+  .meta a { color: var(--faint); text-decoration: underline; text-underline-offset: 2px; }
+  .meta a:hover { color: var(--dim); }
 
-  section { padding: 60px 0; border-top: 1px solid var(--border); }
-  h2 { font-family: var(--mono); font-size: 0.85rem; color: var(--accent); text-transform: uppercase;
-    letter-spacing: 0.18em; margin-bottom: 30px; display: inline-flex; align-items: center; gap: 8px;
-    cursor: pointer; user-select: none; }
-  h2 .replay { font-size: 0.7rem; color: var(--faint); border: 1px solid var(--border); border-radius: 5px;
-    padding: 2px 7px; letter-spacing: 0.05em; opacity: 0; transition: opacity .15s; }
-  h2:hover .replay { opacity: 1; }
-  h2 .replay::before { content: "▶ "; }
+  /* ---------- the instrument ---------- */
+  .instrument { background: linear-gradient(180deg, var(--bg-1), #100e0c);
+    border: 1px solid var(--line-2); border-radius: var(--r-lg); padding: 16px;
+    box-shadow: 0 24px 70px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.03); }
 
-  /* selector — connected segments, touching */
-  .seg { display: inline-flex; background: var(--bg-raise); border: 1px solid var(--border-lit);
-    border-radius: 12px; overflow: hidden; }
-  .seg button { background: none; border: 0; border-right: 1px solid var(--border-lit); color: var(--dim);
-    font-family: var(--mono); font-weight: 600; font-size: 0.95rem; padding: 10px 22px; cursor: pointer;
-    transition: all .15s; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; line-height: 1.2; }
-  .seg button:last-child { border-right: 0; }
-  .seg button .top { display: flex; align-items: center; gap: 7px; }
-  .seg button .pi { color: var(--accent); font-size: 0.9rem; }
-  .seg button .ch { font-size: 0.68rem; font-weight: 400; color: var(--faint); }
-  .seg button:hover { color: var(--text); background: rgba(255,255,255,0.02); }
-  .seg button.active { background: var(--accent); color: #1a1208; }
-  .seg button.active .ch { color: #5a3a1f; }
-  .seg button.active .pi { color: #1a1208; }
+  .scope { position: relative; border-radius: var(--r-md); overflow: hidden;
+    background: var(--screen); border: 1px solid #221d18; height: 184px;
+    box-shadow: inset 0 0 60px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,180,84,.05); }
+  /* graticule — the scope's measurement grid */
+  .scope::before { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+    background-image:
+      linear-gradient(rgba(255,180,84,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,180,84,.05) 1px, transparent 1px);
+    background-size: 40px 40px; background-position: center;
+    -webkit-mask-image: radial-gradient(120% 120% at 50% 50%, #000 55%, transparent 100%);
+            mask-image: radial-gradient(120% 120% at 50% 50%, #000 55%, transparent 100%); }
+  /* scanline + vignette */
+  .scope::after { content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 3;
+    background:
+      repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
+      radial-gradient(110% 90% at 50% 50%, transparent 60%, rgba(0,0,0,.55) 100%); }
+  .scope canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; display: block; }
+  .scope .readout { position: absolute; left: 12px; bottom: 10px; z-index: 4;
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.04em;
+    color: var(--amber); text-shadow: 0 0 8px rgba(255,180,84,.5); pointer-events: none; }
+  .scope .readout .id { color: var(--faint); text-shadow: none; }
+  .scope .gain { position: absolute; right: 12px; top: 10px; z-index: 4;
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--faint); pointer-events: none; }
 
-  .evgrid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 12px; }
-  @media (max-width: 720px) { .evgrid { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 420px) { .evgrid { grid-template-columns: repeat(2, 1fr); } }
-  .ev { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px;
-    cursor: pointer; transition: border-color .15s, transform .1s, background .15s; text-align: center;
-    font-family: var(--mono); }
-  .ev:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .ev.sel { border-color: var(--accent); background: rgba(239,155,111,0.10); }
-  .ev .ic { font-size: 1.15rem; display: block; margin-bottom: 6px; color: var(--accent); }
-  .ev .nm { display: block; font-size: 0.8rem; color: var(--text); }
-  .ev .ds { display: block; font-size: 0.68rem; color: var(--faint); margin-top: 3px; }
+  .controls { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .ctl-row { display: flex; align-items: center; gap: 10px; }
+  .ctl-label { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--faint); width: 50px; flex: 0 0 auto; }
 
-  /* terminal demo */
-  .term { margin-top: 34px; background: #08090c; border: 1px solid var(--border-lit); border-radius: 14px;
-    overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
-  .term .bar { display: flex; align-items: center; gap: 8px; padding: 11px 15px; background: var(--bg-raise);
-    border-bottom: 1px solid var(--border); }
-  .term .dot { width: 11px; height: 11px; border-radius: 50%; background: var(--border-lit); }
-  .term .dot:nth-child(1) { background: #f47067; } .term .dot:nth-child(2) { background: #e2b340; }
-  .term .dot:nth-child(3) { background: #57ab5a; }
-  .term .bar .title { font-family: var(--mono); color: var(--faint); font-size: 0.76rem; margin-left: 8px; }
-  .term .screen { padding: 18px; font-family: var(--mono); font-size: 0.9rem; min-height: 138px; }
-  .term .log div { margin-bottom: 4px; }
-  .term .log .sys { color: var(--dim); }
-  .term .log .you { color: var(--text); }
-  .term .log .claude { color: var(--green); }
-  .term .inrow { display: flex; gap: 8px; margin-top: 10px; }
-  .term .inrow .ps1 { color: var(--accent); }
-  .term input { flex: 1; background: none; border: 0; outline: 0; color: var(--text);
-    font-family: var(--mono); font-size: 0.9rem; caret-color: var(--accent); }
+  /* power switch (doubles as the browser-autoplay unlock) */
+  .power { display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
+    background: var(--bg-2); border: 1px solid var(--line-2); color: var(--dim);
+    border-radius: 999px; padding: 8px 16px 8px 12px; font-family: var(--mono); font-size: 0.8rem;
+    transition: color .15s, border-color .15s, background .15s; }
+  .power svg { width: 15px; height: 15px; }
+  .power .pwr { stroke: var(--faint); transition: stroke .15s; }
+  .power:hover { color: var(--text); border-color: var(--line-2); }
+  .power.on { color: var(--amber); border-color: var(--amber-lo); background: rgba(255,180,84,.08); }
+  .power.on .pwr { stroke: var(--amber); }
 
-  /* faq */
-  details { border: 1px solid var(--border); border-radius: 11px; margin-bottom: 10px; background: var(--bg-card); }
-  details summary { padding: 15px 18px; cursor: pointer; font-weight: 600; font-size: 0.95rem; list-style: none; }
-  details summary::-webkit-details-marker { display: none; }
-  details summary::before { content: "▸ "; color: var(--accent); }
-  details[open] summary::before { content: "▾ "; }
-  details .a { padding: 0 18px 15px; color: var(--dim); font-size: 0.92rem; }
-  details .a code { color: var(--text); font-family: var(--mono); font-size: 0.88em; }
+  /* voice selector — segmented, one accent */
+  .voices { display: inline-flex; background: var(--bg-2); border: 1px solid var(--line-2);
+    border-radius: var(--r-md); overflow: hidden; }
+  .voice { background: none; border: 0; border-right: 1px solid var(--line); cursor: pointer;
+    font-family: var(--mono); color: var(--dim); padding: 8px 16px; font-size: 0.82rem;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 1px; line-height: 1.25;
+    transition: background .15s, color .15s; }
+  .voice:last-child { border-right: 0; }
+  .voice .nm { font-weight: 600; }
+  .voice .tg { font-size: 0.6rem; color: var(--faint); letter-spacing: 0.02em; }
+  .voice:hover { background: rgba(255,255,255,.025); color: var(--text); }
+  .voice.active { background: var(--amber); color: var(--ink); }
+  .voice.active .tg { color: rgba(26,18,6,.62); }
 
-  footer { padding: 44px 0 70px; border-top: 1px solid var(--border); text-align: center;
-    color: var(--faint); font-size: 0.85rem; }
-  footer .links { margin-bottom: 10px; font-family: var(--mono); }
-  footer .links a { margin: 0 9px; color: var(--dim); }
+  /* event keys — typographic, no icons */
+  .keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; min-width: 0; }
+  .key { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--r-md);
+    cursor: pointer; padding: 9px 11px; text-align: left; font-family: var(--mono); min-width: 0;
+    transition: border-color .15s, background .15s, transform .08s; }
+  .key:hover { border-color: var(--amber-lo); }
+  .key:active { transform: translateY(1px); }
+  .key.sel { border-color: var(--amber); background: rgba(255,180,84,.09); }
+  .key .kn { display: block; font-size: 0.82rem; color: var(--text); font-weight: 600; }
+  .key .kd { display: block; font-size: 0.62rem; color: var(--faint); margin-top: 1px; }
+  .key.sel .kn { color: var(--amber-hi); }
+  /* brief flash when a key fires */
+  @keyframes keyfire { 0% { box-shadow: 0 0 0 0 rgba(255,180,84,.5); } 100% { box-shadow: 0 0 0 7px rgba(255,180,84,0); } }
+  .key.fire { animation: keyfire .5s var(--ease); }
+
+  /* ---------- sections ---------- */
+  section { padding: 92px 0; border-top: 1px solid var(--line); }
+  .sec-head { font-family: var(--mono); font-weight: 700; letter-spacing: -0.03em;
+    font-size: clamp(1.7rem, 3.4vw, 2.5rem); line-height: 1.05; }
+  .sec-head .lit { color: var(--amber); }
+  .sec-intro { color: var(--dim); margin-top: 14px; max-width: 56ch; font-size: 1.02rem; }
+
+  /* ---------- timeline ---------- */
+  .seq-bar { display: flex; align-items: center; gap: 16px; margin: 34px 0 30px; flex-wrap: wrap; }
+  .play-session { display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+    background: var(--amber); color: var(--ink); border: 0; border-radius: 999px;
+    padding: 11px 22px 11px 18px; font-family: var(--mono); font-weight: 700; font-size: 0.86rem;
+    transition: background .15s, transform .08s; }
+  .play-session:hover { background: var(--amber-hi); }
+  .play-session:active { transform: translateY(1px); }
+  .play-session[disabled] { opacity: .55; cursor: default; }
+  .play-session svg { width: 13px; height: 13px; fill: var(--ink); }
+  .seq-hint { font-family: var(--mono); font-size: 0.76rem; color: var(--faint); }
+
+  .track { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
+    padding-top: 26px; }
+  /* the signal line running through the session */
+  .track .rail { position: absolute; left: 0; right: 0; top: 8px; height: 2px;
+    background: var(--line-2); border-radius: 2px; }
+  .track .rail .fill { position: absolute; inset: 0; background: var(--amber); border-radius: 2px;
+    transform: scaleX(0); transform-origin: left center; transition: transform .5s var(--ease);
+    box-shadow: 0 0 10px rgba(255,180,84,.6); }
+  .node { position: relative; background: none; border: 0; cursor: pointer; text-align: left;
+    padding: 16px 0 0; font-family: inherit; }
+  .node .dot { position: absolute; top: -22px; left: 0; width: 11px; height: 11px; border-radius: 50%;
+    background: var(--bg-2); border: 2px solid var(--line-2); transition: all .25s var(--ease); }
+  .node .nn { display: block; font-family: var(--mono); font-weight: 600; font-size: 0.92rem;
+    color: var(--text); }
+  .node .nw { display: block; font-family: var(--mono); font-size: 0.66rem; color: var(--amber-lo);
+    margin: 3px 0 6px; letter-spacing: 0.02em; }
+  .node .nd { display: block; font-size: 0.82rem; color: var(--dim); line-height: 1.45; }
+  .node:hover .dot { border-color: var(--amber); }
+  .node:hover .nn { color: var(--amber-hi); }
+  .node.lit .dot { background: var(--amber); border-color: var(--amber);
+    box-shadow: 0 0 0 5px rgba(255,180,84,.16), 0 0 16px rgba(255,180,84,.55); }
+  .node.lit .nn { color: var(--amber-hi); }
+
+  /* ---------- faq ---------- */
+  .faq-list { margin-top: 30px; max-width: 760px; }
+  details { border-top: 1px solid var(--line); }
+  details:last-child { border-bottom: 1px solid var(--line); }
+  summary { padding: 18px 2px; cursor: pointer; list-style: none; display: flex;
+    align-items: center; justify-content: space-between; gap: 16px;
+    font-family: var(--mono); font-weight: 600; font-size: 0.98rem; color: var(--text); }
+  summary::-webkit-details-marker { display: none; }
+  summary .plus { color: var(--amber); font-family: var(--mono); transition: transform .2s var(--ease);
+    flex: 0 0 auto; }
+  details[open] summary .plus { transform: rotate(45deg); }
+  details .ans { padding: 0 2px 20px; color: var(--dim); max-width: 64ch; font-size: 0.96rem; }
+  details .ans code { font-family: var(--mono); font-size: 0.86em; color: var(--text);
+    background: var(--bg-2); padding: 1px 6px; border-radius: 5px; }
+
+  /* ---------- footer ---------- */
+  footer { border-top: 1px solid var(--line); padding: 40px 0 64px; text-align: center;
+    color: var(--faint); }
+  footer .links { font-family: var(--mono); font-size: 0.84rem; margin-bottom: 12px; }
+  footer .links a { color: var(--dim); margin: 0 10px; }
+  footer .tag { font-size: 0.84rem; }
+
+  /* ---------- scroll reveal (gated by .anim so no-JS shows content) ---------- */
+  .reveal { transition: opacity .7s var(--ease), transform .7s var(--ease); }
+  .anim .reveal { opacity: 0; transform: translateY(22px); }
+  .anim .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- responsive ---------- */
+  @media (max-width: 880px) {
+    .hero { grid-template-columns: 1fr; gap: 40px; min-height: 0; padding-top: 40px;
+      padding-bottom: 40px; }
+    .pitch .sub { max-width: none; }
+    .instrument { order: 2; }
+  }
+  @media (max-width: 640px) {
+    section { padding: 64px 0; }
+    /* wrap the full command on phones instead of truncating it */
+    .install .cmds span { white-space: normal; overflow-wrap: anywhere; }
+    .install .cmds { font-size: 0.72rem; line-height: 1.7; }
+    .track { grid-template-columns: 1fr; gap: 0; padding-top: 6px; }
+    .track .rail { left: 5px; top: 0; bottom: 0; right: auto; width: 2px; height: auto; }
+    .track .rail .fill { transform-origin: top center; transform: scaleY(0); }
+    .node { padding: 14px 0 14px 26px; }
+    .node .dot { top: 18px; left: 0; }
+  }
+  @media (max-width: 560px) {
+    .keys { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .reveal { transition: none; }
+    .track .rail .fill, .node .dot, .key.fire { transition: none; animation: none; }
+  }
 </style>
+<!-- Progressive enhancement: only hide reveal elements when JS runs AND motion is
+     allowed. No-JS and reduced-motion users see all content immediately. Runs before
+     <body> paints, so there is no flash of hidden content. -->
+<script>try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("anim");}catch(e){}</script>
 </head>
 <body>
-<canvas id="viz"></canvas>
-<div class="v-glow"></div>
-
 <div class="wrap">
+
   <nav>
-    <span class="brand" id="brand">claude-cues</span>
-    <span class="gh">
-      <a href="https://github.com/mannanj/claude-cues" aria-label="GitHub repo">
-        <img src="https://img.shields.io/github/stars/mannanj/claude-cues?style=flat&label=★&color=23262f&labelColor=131520" alt="GitHub stars"></a>
-      <a href="https://github.com/mannanj/claude-cues">GitHub →</a>
+    <button class="brand" id="brand" aria-label="claude-cues — play start sound">
+      <svg viewBox="0 0 22 16" fill="none" aria-hidden="true">
+        <path class="wv" d="M1 8 H4 L6 2 L9 14 L12 4 L15 11 L17 8 H21" stroke="#ffb454" stroke-width="1.6"
+          stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      claude-cues
+    </button>
+    <span class="nav-gh">
+      <a href="https://github.com/mannanj/claude-cues" aria-label="GitHub stars">
+        <img src="https://img.shields.io/github/stars/mannanj/claude-cues?style=flat&label=%E2%98%85&color=2a2521&labelColor=141210" alt="GitHub stars"></a>
+      <a href="https://github.com/mannanj/claude-cues">GitHub</a>
     </span>
   </nav>
 
-  <header data-cue="start">
-    <h1>Hear it <span class="b">work.</span></h1>
-    <p class="sub">claude-cues gives Claude Code four sounds — <b>start</b>, <b>done</b>, <b>blocked</b>,
-      <b>needs you</b> — so you can leave the terminal and let your ears do the thinking.</p>
+  <!-- HERO: the instrument -->
+  <header class="hero" data-cue="start">
+    <div class="pitch">
+      <h1>Hear it <span class="lit">work.</span></h1>
+      <p class="sub">claude-cues gives Claude Code a voice. Six soft cues for what it's
+        doing, so you can <b>walk away</b> and still know.</p>
 
-    <div class="install-box">
-      <div class="lines">
-        <span><span class="p">&gt; </span>/plugin marketplace add mannanj/claude-cues</span>
-        <span><span class="p">&gt; </span>/plugin install claude-cues@claude-cues</span>
+      <div class="install">
+        <div class="cmds">
+          <span><span class="pr">&gt;</span> /plugin marketplace add mannanj/claude-cues</span>
+          <span><span class="pr">&gt;</span> /plugin install claude-cues@claude-cues</span>
+        </div>
+        <button id="copy-btn" aria-label="Copy install commands">copy</button>
       </div>
-      <button id="copy-btn" aria-label="Copy install commands">Copy</button>
+      <p class="meta">macOS, Linux, ~200KB, zero deps ·
+        <a href="https://github.com/mannanj/claude-cues">source</a></p>
     </div>
-    <p class="meta">macOS · Linux · ~200KB · zero deps · <a href="https://github.com/mannanj/claude-cues">source</a></p>
 
-    <div class="enable">
-      <button class="sound-btn" id="sound-btn">🔇 enable sound</button>
-      <span class="hint">then scroll — or click anything to hear it</span>
+    <div class="instrument">
+      <div class="scope">
+        <canvas id="scope" aria-hidden="true"></canvas>
+        <span class="gain">GAIN ×3.0</span>
+        <span class="readout"><span class="id" id="ro-id">CH</span> <span id="ro-txt">press power</span></span>
+      </div>
+
+      <div class="controls">
+        <div class="ctl-row">
+          <button class="power" id="power" aria-pressed="false" aria-label="Enable sound">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path class="pwr" d="M12 3 V11" stroke-width="2" stroke-linecap="round"/>
+              <path class="pwr" d="M6.6 6.8 A8 8 0 1 0 17.4 6.8" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span id="power-txt">enable sound</span>
+          </button>
+          <span class="seq-hint">then play a key</span>
+        </div>
+
+        <div class="ctl-row">
+          <span class="ctl-label">voice</span>
+          <div class="voices" role="tablist" aria-label="Personality">
+            <button class="voice active" role="tab" aria-selected="true" data-p="chime">
+              <span class="nm">chime</span><span class="tg">bright</span></button>
+            <button class="voice" role="tab" aria-selected="false" data-p="hum">
+              <span class="nm">hum</span><span class="tg">warm</span></button>
+            <button class="voice" role="tab" aria-selected="false" data-p="ping">
+              <span class="nm">ping</span><span class="tg">dry</span></button>
+          </div>
+        </div>
+
+        <div class="ctl-row" style="align-items:flex-start">
+          <span class="ctl-label" style="padding-top:9px">play</span>
+          <div class="keys" id="keys" style="flex:1">
+            <button class="key sel" data-ev="start"><span class="kn">start</span><span class="kd">session begins</span></button>
+            <button class="key" data-ev="submit"><span class="kn">submit</span><span class="kd">you send</span></button>
+            <button class="key" data-ev="done"><span class="kn">done</span><span class="kd">finished</span></button>
+            <button class="key" data-ev="permission"><span class="kn">permission</span><span class="kd">needs you</span></button>
+            <button class="key" data-ev="error"><span class="kn">error</span><span class="kd">tool failed</span></button>
+            <button class="key" data-ev="precompact"><span class="kn">precompact</span><span class="kd">compacting</span></button>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <section id="hear" data-cue="submit">
-    <div class="seg" role="tablist" aria-label="personality">
-      <button class="active" data-p="chime"><span class="top"><span class="pi">✦</span>chime</span><span class="ch">bright · bell</span></button>
-      <button data-p="hum"><span class="top"><span class="pi">∿</span>hum</span><span class="ch">warm · low</span></button>
-      <button data-p="ping"><span class="top"><span class="pi">•</span>ping</span><span class="ch">dry · minimal</span></button>
+  <!-- TIMELINE: one session, six cues -->
+  <section data-cue="submit">
+    <h2 class="sec-head reveal">One session, <span class="lit">six cues.</span></h2>
+    <p class="sec-intro reveal">Each moment gets the same sound every time. Learn them once and
+      you'll know your agent by ear, from across the room.</p>
+
+    <div class="seq-bar reveal">
+      <button class="play-session" id="play-session" aria-label="Play a whole session">
+        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1 L11 6 L2 11 Z"/></svg>
+        play a session
+      </button>
+      <span class="seq-hint">or click any moment to hear it</span>
     </div>
 
-    <div class="evgrid" id="evgrid">
-      <button class="ev sel" data-ev="start"><span class="ic">✶</span><span class="nm">start</span><span class="ds">session begins</span></button>
-      <button class="ev" data-ev="submit"><span class="ic">➤</span><span class="nm">submit</span><span class="ds">you send</span></button>
-      <button class="ev" data-ev="done"><span class="ic">✔</span><span class="nm">done</span><span class="ds">finished</span></button>
-      <button class="ev" data-ev="permission"><span class="ic">⏸</span><span class="nm">permission</span><span class="ds">needs you</span></button>
-      <button class="ev" data-ev="error"><span class="ic">✘</span><span class="nm">error</span><span class="ds">tool failed</span></button>
-      <button class="ev" data-ev="precompact"><span class="ic">…</span><span class="nm">precompact</span><span class="ds">compacting</span></button>
-    </div>
-
-    <div class="term">
-      <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-        <span class="title">claude — type and press enter</span></div>
-      <div class="screen">
-        <div class="log" id="term-log">
-          <div class="sys">✶ session started — voice: <span id="term-p">chime</span></div>
-        </div>
-        <div class="inrow"><span class="ps1">&gt;</span>
-          <input id="term-in" type="text" placeholder="type anything, press enter…" autocomplete="off" spellcheck="false"></div>
-      </div>
+    <div class="track reveal" id="track">
+      <div class="rail"><div class="fill" id="rail-fill"></div></div>
+      <button class="node" data-ev="start"><span class="dot"></span>
+        <span class="nn">start</span><span class="nw">session opens</span>
+        <span class="nd">The voice for this session announces itself.</span></button>
+      <button class="node" data-ev="submit"><span class="dot"></span>
+        <span class="nn">submit</span><span class="nw">you send</span>
+        <span class="nd">A soft tap confirms your prompt landed.</span></button>
+      <button class="node" data-ev="permission"><span class="dot"></span>
+        <span class="nn">permission</span><span class="nw">it needs you</span>
+        <span class="nd">The one that pulls you back to the keyboard.</span></button>
+      <button class="node" data-ev="error"><span class="dot"></span>
+        <span class="nn">error</span><span class="nw">a tool fails</span>
+        <span class="nd">A low note, so a snag never passes silently.</span></button>
+      <button class="node" data-ev="precompact"><span class="dot"></span>
+        <span class="nn">precompact</span><span class="nw">context trims</span>
+        <span class="nd">A quiet transition as memory compacts.</span></button>
+      <button class="node" data-ev="done"><span class="dot"></span>
+        <span class="nn">done</span><span class="nw">task complete</span>
+        <span class="nd">The tone that means you can look back over.</span></button>
     </div>
   </section>
 
+  <!-- FAQ -->
   <section data-cue="precompact">
-    <h2>faq</h2>
-    <details><summary>Does it slow Claude Code down?</summary>
-      <div class="a">No. Each hook backgrounds the player and returns instantly. No daemon, no network, no telemetry — a shell script and 24 small mp3s.</div></details>
-    <details><summary>Can I use my own sounds?</summary>
-      <div class="a">Yes. Drop a folder at <code>sounds/&lt;name&gt;/&lt;event&gt;/*.mp3</code> and it joins the rotation.</div></details>
-    <details><summary>How do I turn it off?</summary>
-      <div class="a"><code>/claude-cues:toggle</code>, or set <code>ENABLED=0</code> in <code>~/.claude/claude-cues/config</code>. Uninstall is one command.</div></details>
-    <details><summary>Windows?</summary>
-      <div class="a">Not yet. The script no-ops on unsupported platforms — nothing breaks. PRs welcome.</div></details>
-    <details><summary>Is the audio really free?</summary>
-      <div class="a">Yes — every sound was synthesized for this project and dedicated to the public domain (CC0). The code is MIT.</div></details>
+    <h2 class="sec-head reveal">Good <span class="lit">questions.</span></h2>
+    <div class="faq-list reveal">
+      <details><summary>Does it slow Claude Code down?<span class="plus">+</span></summary>
+        <div class="ans">No. Each hook backgrounds the player and returns instantly. No daemon, no
+          network, no telemetry: a shell script and 24 small mp3s.</div></details>
+      <details><summary>Can I use my own sounds?<span class="plus">+</span></summary>
+        <div class="ans">Yes. Drop a folder at <code>sounds/&lt;name&gt;/&lt;event&gt;/*.mp3</code> and it joins
+          the rotation. Missing an event folder stays silent for that voice; it never borrows another.</div></details>
+      <details><summary>How do I turn it off?<span class="plus">+</span></summary>
+        <div class="ans"><code>/claude-cues:toggle</code>, or set <code>ENABLED=0</code> in
+          <code>~/.claude/claude-cues/config</code>. Uninstall is one command.</div></details>
+      <details><summary>Windows?<span class="plus">+</span></summary>
+        <div class="ans">Not yet. The script no-ops on unsupported platforms, so nothing breaks.
+          PRs welcome.</div></details>
+      <details><summary>Is the audio really free?<span class="plus">+</span></summary>
+        <div class="ans">Yes. Every sound was synthesized for this project and dedicated to the public
+          domain (CC0). The code is MIT.</div></details>
+    </div>
   </section>
 
   <footer>
     <div class="links">
-      <a href="https://github.com/mannanj/claude-cues">GitHub</a> ·
-      <a href="https://github.com/mannanj/claude-cues/blob/main/LICENSE">MIT</a> ·
+      <a href="https://github.com/mannanj/claude-cues">GitHub</a>
+      <a href="https://github.com/mannanj/claude-cues/blob/main/LICENSE">MIT</a>
       <a href="https://github.com/mannanj/claude-cues/blob/main/sounds/LICENSE">CC0 audio</a>
     </div>
-    made with ♪ for people who like to hear
+    <div class="tag mono">made for people who'd rather listen than look</div>
   </footer>
+
 </div>
 
 <script>
 (function () {
   "use strict";
-  var GAIN = 3.0;                 // tones mastered quiet; match the plugin's afplay -v 3.0
-  var SUBMIT_VARIANTS = 3;
-  var ctx = null, masterGain = null, analyser = null, buffers = {};
-  var enabled = false;            // sound opt-in (browser autoplay policy)
-  var active = 'chime';
-  var lastAmp = 0;                // smoothed live audio energy for the visualizer
 
-  /* ---------- audio ---------- */
+  /* ============================ audio engine ============================ */
+  /* Preserved from the plugin: GAIN matches afplay -v 3.0; the URL scheme is
+     sounds/<voice>/<event>/<voice>-<event>[-variant].mp3 ; submit has 3 variants. */
+  var GAIN = 3.0, SUBMIT_VARIANTS = 3;
+  var VOICES = { chime: "CH", hum: "HM", ping: "PG" };
+  var ctx = null, master = null, analyser = null, buffers = {};
+  var enabled = false, voice = "chime", currentEv = "start", energy = 0;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   function audioCtx() {
     if (!ctx) {
       ctx = new (window.AudioContext || window.webkitAudioContext)();
-      masterGain = ctx.createGain();
-      masterGain.gain.value = GAIN;
+      master = ctx.createGain(); master.gain.value = GAIN;
       analyser = ctx.createAnalyser();
-      analyser.fftSize = 1024;
-      analyser.smoothingTimeConstant = 0.75;
-      masterGain.connect(analyser);
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.6;
+      master.connect(analyser);
       analyser.connect(ctx.destination);
     }
-    if (ctx.state === 'suspended') ctx.resume();
+    if (ctx.state === "suspended") ctx.resume();
     return ctx;
   }
   function url(p, ev, variant) {
-    return 'sounds/' + p + '/' + ev + '/' + p + '-' + ev + (variant ? '-' + variant : '') + '.mp3';
+    return "sounds/" + p + "/" + ev + "/" + p + "-" + ev + (variant ? "-" + variant : "") + ".mp3";
   }
   function load(u) {
     if (buffers[u]) return buffers[u];
-    buffers[u] = fetch(u)
-      .then(function (r) { return r.arrayBuffer(); })
+    buffers[u] = fetch(u).then(function (r) { return r.arrayBuffer(); })
       .then(function (ab) { return audioCtx().decodeAudioData(ab); });
     return buffers[u];
   }
-  // play a cue; returns true if it actually fired
+  // play a cue. opts.force lets a deliberate click both unlock audio and play.
   function play(ev, opts) {
     opts = opts || {};
     if (!enabled && !opts.force) return false;
-    enabled = true; setSoundBtn(true);
-    var variant = ev === 'submit' ? (1 + Math.floor(Math.random() * SUBMIT_VARIANTS)) : null;
+    setPower(true);
+    var variant = ev === "submit" ? (1 + Math.floor(Math.random() * SUBMIT_VARIANTS)) : null;
     audioCtx();
-    load(url(active, ev, variant)).then(function (buf) {
+    load(url(voice, ev, variant)).then(function (buf) {
       var src = ctx.createBufferSource();
-      src.buffer = buf;
-      src.connect(masterGain);
-      src.start();
-    }).catch(function () { /* graceful silence, like the real thing */ });
+      src.buffer = buf; src.connect(master); src.start();
+    }).catch(function () { /* graceful silence, exactly like the real plugin */ });
+    setReadout(ev);
     return true;
   }
 
-  /* ---------- visualizer (always-on canvas loop) ---------- */
-  var cv = document.getElementById('viz'), g = cv.getContext('2d');
+  /* ============================ oscilloscope ============================ */
+  /* Draws the real time-domain waveform of whatever is playing (sound made
+     visible), with phosphor-style persistence. Calm drifting trace when idle. */
+  var cv = document.getElementById("scope"), g = cv.getContext("2d");
   var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var timeBuf = null, freqBuf = null;
+
   function resize() {
     W = cv.clientWidth; H = cv.clientHeight;
-    cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0);
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    g.setTransform(DPR, 0, 0, DPR, 0, 0);
+    g.fillStyle = "#0a0908"; g.fillRect(0, 0, W, H);
   }
-  window.addEventListener('resize', resize); resize();
+  window.addEventListener("resize", resize); resize();
 
-  var freq = analyser ? new Uint8Array(0) : null;
   function draw(t) {
     var time = t * 0.001;
-    g.clearRect(0, 0, W, H);
+    // fade the previous frame instead of clearing — leaves a glowing trail
+    g.fillStyle = "rgba(10,9,8,0.22)";
+    g.fillRect(0, 0, W, H);
 
-    // live audio energy → amplitude boost
     var live = 0;
     if (analyser) {
-      if (!freq || freq.length !== analyser.frequencyBinCount) freq = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteFrequencyData(freq);
-      var sum = 0; for (var i = 0; i < freq.length; i++) sum += freq[i];
-      live = sum / freq.length / 255;       // 0..1
+      if (!timeBuf || timeBuf.length !== analyser.fftSize) timeBuf = new Uint8Array(analyser.fftSize);
+      if (!freqBuf || freqBuf.length !== analyser.frequencyBinCount) freqBuf = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteTimeDomainData(timeBuf);
+      analyser.getByteFrequencyData(freqBuf);
+      var s = 0; for (var i = 0; i < freqBuf.length; i++) s += freqBuf[i];
+      live = s / freqBuf.length / 255;
     }
-    lastAmp += (live - lastAmp) * 0.18;       // smooth
+    energy += (live - energy) * 0.2;
 
-    // scroll position 0..1 gently shifts the waveform character
-    var sc = window.scrollY / Math.max(1, (document.body.scrollHeight - window.innerHeight));
-    var cy = H * (0.34 + sc * 0.10);
+    var cy = H * 0.5, amp = H * 0.36;
+    var N = timeBuf ? timeBuf.length : 1024;
+    var step = Math.max(1, Math.floor(N / (W * 1.5)));
+    var idleK = reduce ? 0 : (1 - Math.min(1, energy * 4));   // idle drift fades out as a cue plays
 
-    // three stacked sine layers — calm when idle, energetic when audio plays
-    var layers = [
-      { amp: 16 + lastAmp * 150, k: 0.0065, sp: 0.7, col: 'rgba(239,155,111,', a: 0.55 },
-      { amp: 11 + lastAmp * 95,  k: 0.011,  sp: -1.1, col: 'rgba(240,198,107,', a: 0.30 },
-      { amp: 7  + lastAmp * 60,  k: 0.018,  sp: 1.6, col: 'rgba(132,221,151,', a: 0.18 }
-    ];
-    for (var L = 0; L < layers.length; L++) {
-      var ly = layers[L];
-      g.beginPath();
-      for (var x = 0; x <= W; x += 6) {
-        var env = Math.sin((x / W) * Math.PI);            // taper at edges
-        var y = cy + Math.sin(x * ly.k + time * ly.sp + L) * ly.amp * env
-                   + Math.sin(x * ly.k * 0.4 - time * ly.sp * 0.6) * ly.amp * 0.4 * env;
-        if (x === 0) g.moveTo(x, y); else g.lineTo(x, y);
-      }
-      g.strokeStyle = ly.col + (ly.a + lastAmp * 0.3) + ')';
-      g.lineWidth = 1.5;
-      g.stroke();
+    g.lineWidth = 1.8; g.lineJoin = "round"; g.lineCap = "round";
+    g.shadowColor = "rgba(255,180,84,0.85)";
+    g.shadowBlur = 5 + energy * 26;
+    g.strokeStyle = "rgba(255,190,120," + (0.42 + energy * 0.55) + ")";
+    g.beginPath();
+    for (var j = 0; j < N; j += step) {
+      var env = Math.sin((j / N) * Math.PI);                  // taper toward the edges
+      var liveV = timeBuf ? (timeBuf[j] - 128) / 128 : 0;     // -1..1 actual signal
+      var idleV = Math.sin(j * 0.013 + time * 1.3) * 0.14
+                + Math.sin(j * 0.026 - time * 0.8) * 0.05;
+      var v = (idleV * idleK + liveV) * env;
+      var x = (j / N) * W, y = cy + v * amp;
+      if (j === 0) g.moveTo(x, y); else g.lineTo(x, y);
     }
+    g.stroke();
+    g.shadowBlur = 0;
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
 
-  /* ---------- enable-sound toggle ---------- */
-  var soundBtn = document.getElementById('sound-btn');
-  function setSoundBtn(on) {
+  /* ============================ readout ============================ */
+  var roId = document.getElementById("ro-id"), roTxt = document.getElementById("ro-txt");
+  function setReadout(ev) {
+    roId.textContent = VOICES[voice];
+    roTxt.textContent = enabled ? ev : "press power";
+  }
+
+  /* ============================ power / unlock ============================ */
+  var power = document.getElementById("power"), powerTxt = document.getElementById("power-txt");
+  function setPower(on) {
+    if (enabled === on) return;
     enabled = on;
-    soundBtn.classList.toggle('on', on);
-    soundBtn.textContent = on ? '🔊 sound on' : '🔇 enable sound';
+    power.classList.toggle("on", on);
+    power.setAttribute("aria-pressed", on ? "true" : "false");
+    powerTxt.textContent = on ? "sound on" : "enable sound";
+    setReadout(currentEv);
   }
-  soundBtn.addEventListener('click', function () {
-    if (enabled) { setSoundBtn(false); return; }
-    audioCtx();                 // unlock within the gesture
-    setSoundBtn(true);
-    play('start', { force: true });
+  power.addEventListener("click", function () {
+    if (enabled) { setPower(false); roTxt.textContent = "press power"; return; }
+    audioCtx();                       // unlock inside the user gesture
+    setPower(true);
+    play("start", { force: true });   // power-on plays the session theme
   });
 
-  /* ---------- event selector (which cue the voices play) ---------- */
-  var selectedEv = 'start';
-  var evBtns = document.querySelectorAll('.ev');
-  evBtns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      evBtns.forEach(function (x) { x.classList.remove('sel'); });
-      b.classList.add('sel');
-      selectedEv = b.dataset.ev;
-      play(selectedEv, { force: true });
+  /* ============================ select helpers ============================ */
+  var keyEls = document.querySelectorAll(".key");
+  var nodeEls = document.querySelectorAll(".node");
+  function setEvent(ev, flashKey) {
+    currentEv = ev;
+    keyEls.forEach(function (k) {
+      var on = k.dataset.ev === ev;
+      k.classList.toggle("sel", on);
+      if (on && flashKey) { k.classList.remove("fire"); void k.offsetWidth; k.classList.add("fire"); }
+    });
+    nodeEls.forEach(function (n) { n.classList.toggle("lit", n.dataset.ev === ev); });
+  }
+
+  /* voice selector */
+  document.querySelectorAll(".voice").forEach(function (b) {
+    b.addEventListener("click", function () {
+      document.querySelectorAll(".voice").forEach(function (x) {
+        x.classList.remove("active"); x.setAttribute("aria-selected", "false");
+      });
+      b.classList.add("active"); b.setAttribute("aria-selected", "true");
+      voice = b.dataset.p;
+      play(currentEv, { force: true });
     });
   });
 
-  /* ---------- personality selector — plays the currently selected cue ---------- */
-  var segBtns = document.querySelectorAll('.seg button');
-  segBtns.forEach(function (b) {
-    b.addEventListener('click', function () {
-      segBtns.forEach(function (x) { x.classList.remove('active'); });
-      b.classList.add('active');
-      active = b.dataset.p;
-      document.getElementById('term-p').textContent = active;
-      logLine('sys', '✶ voice: ' + active);
-      play(selectedEv, { force: true });
-    });
+  /* event keys */
+  keyEls.forEach(function (k) {
+    k.addEventListener("click", function () { setEvent(k.dataset.ev, true); play(k.dataset.ev, { force: true }); });
   });
 
-  /* ---------- terminal demo ---------- */
-  var log = document.getElementById('term-log');
-  var input = document.getElementById('term-in');
-  function logLine(cls, text) {
-    var d = document.createElement('div');
-    d.className = cls; d.textContent = text;
-    log.appendChild(d);
-    while (log.children.length > 6) log.removeChild(log.firstChild);
+  /* timeline nodes */
+  nodeEls.forEach(function (n) {
+    n.addEventListener("click", function () { setEvent(n.dataset.ev, true); play(n.dataset.ev, { force: true }); });
+  });
+
+  /* ============================ session sequencer ============================ */
+  var SEQ = ["start", "submit", "permission", "error", "precompact", "done"];
+  var railFill = document.getElementById("rail-fill");
+  var playBtn = document.getElementById("play-session");
+  var seqRunning = false;
+  function railTo(frac) {
+    railFill.style.transform = (window.innerWidth <= 640 ? "scaleY(" : "scaleX(") + frac + ")";
   }
-  input.addEventListener('keydown', function (e) {
-    if (e.key !== 'Enter' || !input.value.trim()) return;
-    var text = input.value.trim(); input.value = '';
-    logLine('you', '> ' + text);
-    play('submit', { force: true });
-    setTimeout(function () { logLine('sys', '✶ working…'); }, 350);
-    setTimeout(function () { logLine('claude', '✔ done'); play('done', { force: true }); }, 1500);
+  playBtn.addEventListener("click", function () {
+    if (seqRunning) return;
+    seqRunning = true; playBtn.setAttribute("disabled", "");
+    audioCtx(); setPower(true);
+    var i = 0, gap = reduce ? 520 : 720;
+    (function tick() {
+      if (i >= SEQ.length) {
+        setTimeout(function () { seqRunning = false; playBtn.removeAttribute("disabled"); }, 600);
+        return;
+      }
+      var ev = SEQ[i];
+      setEvent(ev, true);
+      play(ev, { force: true });
+      railTo((i + 1) / SEQ.length);
+      i++; setTimeout(tick, gap);
+    })();
   });
 
-  /* ---------- scroll cues: fire each section's signature cue ONCE ---------- */
-  var sections = document.querySelectorAll('[data-cue]');
+  /* ============================ scroll cues ============================ */
+  /* Each section fires its signature cue once, but only after sound is enabled —
+     the page demonstrates the product as you move through it. */
   var fired = {};
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (en) {
       if (!en.isIntersecting) return;
-      var cue = en.target.getAttribute('data-cue');
-      if (fired[cue]) return;
-      // only auto-fire once sound is enabled; silent visual stays for everyone
-      if (enabled && play(cue)) fired[cue] = true;
+      var cue = en.target.getAttribute("data-cue");
+      if (cue && enabled && !fired[cue] && play(cue)) fired[cue] = true;
     });
-  }, { threshold: 0.55 });
-  sections.forEach(function (s) { io.observe(s); });
+  }, { threshold: 0.5 });
+  document.querySelectorAll("[data-cue]").forEach(function (s) { io.observe(s); });
 
-  /* ---------- click a section heading (or brand) to replay its cue ---------- */
-  document.querySelectorAll('h2').forEach(function (h) {
-    var sec = h.closest('[data-cue]');
-    if (!sec) return;
-    h.addEventListener('click', function () { play(sec.getAttribute('data-cue'), { force: true }); });
-  });
-  document.getElementById('brand').addEventListener('click', function () { play('start', { force: true }); });
+  /* reveal-on-scroll */
+  var rio = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); rio.unobserve(en.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll(".reveal").forEach(function (el) { rio.observe(el); });
 
-  /* ---------- copy install ---------- */
-  document.getElementById('copy-btn').addEventListener('click', function () {
-    var cmds = '/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues';
+  /* ============================ brand + copy ============================ */
+  document.getElementById("brand").addEventListener("click", function () { play("start", { force: true }); });
+  document.getElementById("copy-btn").addEventListener("click", function () {
+    var cmds = "/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues";
     navigator.clipboard.writeText(cmds).then(function () {
-      var b = document.getElementById('copy-btn');
-      b.textContent = 'Copied!';
-      setTimeout(function () { b.textContent = 'Copy'; }, 1500);
+      var b = document.getElementById("copy-btn");
+      b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1500);
     });
   });
+
+  setReadout(currentEv);
 })();
 </script>
 </body>
