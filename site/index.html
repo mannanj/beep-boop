@@ -440,7 +440,7 @@
   var GAIN = 3.0, SUBMIT_VARIANTS = 3;
   var VOICES = { chime: "CH", hum: "HM", ping: "PG" };
   var ctx = null, master = null, analyser = null, buffers = {};
-  var enabled = false, voice = "chime", currentEv = "start", energy = 0;
+  var enabled = false, voice = "chime", currentEv = "start", scopeEv = "start", energy = 0;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function audioCtx() {
@@ -476,6 +476,7 @@
       var src = ctx.createBufferSource();
       src.buffer = buf; src.connect(master); src.start();
     }).catch(function () { /* graceful silence, exactly like the real plugin */ });
+    scopeEv = ev;
     setReadout(ev);
     return true;
   }
@@ -485,7 +486,28 @@
      visible), with phosphor-style persistence. Calm drifting trace when idle. */
   var cv = document.getElementById("scope"), g = cv.getContext("2d");
   var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
-  var timeBuf = null, freqBuf = null;
+  var freqBuf = null, STEPS = 170, TAU = 6.28318;
+
+  /* Each cue draws its own calm signature: 1-3 gentle waves with a distinct shape,
+     so the six events read differently at a glance. The amplitude breathes with the
+     live audio energy of the real cue, so it still reacts to the actual sound. */
+  var SIG = {
+    start:      { cyc: 2.0, amp: 0.80, sp: 1.1, ph: 0.0, shape: "swell"  },  // rising swell
+    submit:     { cyc: 1.0, amp: 0.70, sp: 2.4, ph: 1.0, shape: "center" },  // single soft tap
+    done:       { cyc: 1.8, amp: 0.74, sp: 0.7, ph: 0.5, shape: "decay"  },  // settling resolve
+    permission: { cyc: 2.6, amp: 0.88, sp: 1.8, ph: 0.0, shape: "double" },  // attention double
+    error:      { cyc: 1.2, amp: 0.72, sp: 0.5, ph: 0.0, shape: "low"    },  // low slow wave
+    precompact: { cyc: 3.0, amp: 0.44, sp: 0.9, ph: 0.0, shape: "fade"   }   // quiet fading ripple
+  };
+  function shapeEnv(shape, f) {
+    if (shape === "swell")  return Math.pow(f, 0.7);
+    if (shape === "decay")  return Math.pow(1 - f, 0.7);
+    if (shape === "center") return Math.exp(-Math.pow((f - 0.5) * 5.5, 2));
+    if (shape === "double") return Math.exp(-Math.pow((f - 0.34) * 7, 2)) + Math.exp(-Math.pow((f - 0.66) * 7, 2));
+    if (shape === "low")    return 0.7 + 0.3 * Math.sin(f * Math.PI);
+    if (shape === "fade")   return (1 - f) * (0.55 + 0.45 * Math.sin(f * Math.PI));
+    return 1;
+  }
 
   function resize() {
     W = cv.clientWidth; H = cv.clientHeight;
@@ -503,33 +525,34 @@
 
     var live = 0;
     if (analyser) {
-      if (!timeBuf || timeBuf.length !== analyser.fftSize) timeBuf = new Uint8Array(analyser.fftSize);
       if (!freqBuf || freqBuf.length !== analyser.frequencyBinCount) freqBuf = new Uint8Array(analyser.frequencyBinCount);
-      analyser.getByteTimeDomainData(timeBuf);
       analyser.getByteFrequencyData(freqBuf);
       var s = 0; for (var i = 0; i < freqBuf.length; i++) s += freqBuf[i];
       live = s / freqBuf.length / 255;
     }
     energy += (live - energy) * 0.2;
 
-    var cy = H * 0.5, amp = H * 0.36;
-    var N = timeBuf ? timeBuf.length : 1024;
-    var step = Math.max(1, Math.floor(N / (W * 1.5)));
-    var idleK = reduce ? 0 : (1 - Math.min(1, energy * 4));   // idle drift fades out as a cue plays
+    var cy = H * 0.5, AMP = H * 0.40;
+    var drive = Math.min(1, energy * 9);                     // how present the cue is, 0..1
+    var idleK = reduce ? 0 : (1 - Math.min(1, energy * 11)); // idle drift fades out as a cue plays
+    var sig = SIG[scopeEv] || SIG.start;
 
     g.lineWidth = 1.8; g.lineJoin = "round"; g.lineCap = "round";
     g.shadowColor = "rgba(255,180,84,0.85)";
     g.shadowBlur = 5 + energy * 26;
     g.strokeStyle = "rgba(255,190,120," + (0.42 + energy * 0.55) + ")";
     g.beginPath();
-    for (var j = 0; j < N; j += step) {
-      var env = Math.sin((j / N) * Math.PI);                  // taper toward the edges
-      var liveV = timeBuf ? (timeBuf[j] - 128) / 128 : 0;     // -1..1 actual signal
-      var idleV = Math.sin(j * 0.013 + time * 1.3) * 0.14
-                + Math.sin(j * 0.026 - time * 0.8) * 0.05;
-      var v = (idleV * idleK + liveV) * env;
-      var x = (j / N) * W, y = cy + v * amp;
-      if (j === 0) g.moveTo(x, y); else g.lineTo(x, y);
+    for (var k = 0; k <= STEPS; k++) {
+      var frac = k / STEPS;
+      var taper = Math.sin(frac * Math.PI);                  // soft edges
+      // this cue's signature wave (few cycles, shaped), breathing with the real audio
+      var sigV = Math.sin(frac * TAU * sig.cyc + time * sig.sp + sig.ph) * sig.amp * shapeEnv(sig.shape, frac) * drive;
+      // a couple of slow humps when nothing is playing
+      var idleV = (Math.sin(frac * TAU * 1.8 + time * 1.3) * 0.13
+                 + Math.sin(frac * TAU * 2.9 - time * 0.8) * 0.045) * idleK;
+      var v = (sigV + idleV) * taper;
+      var x = frac * W, y = cy + v * AMP;
+      if (k === 0) g.moveTo(x, y); else g.lineTo(x, y);
     }
     g.stroke();
     g.shadowBlur = 0;
