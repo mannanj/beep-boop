@@ -128,28 +128,23 @@
       repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px),
       radial-gradient(110% 90% at 50% 50%, transparent 60%, rgba(0,0,0,.55) 100%); }
   .scope canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 2; display: block; }
-  .scope .readout { position: absolute; left: 12px; bottom: 10px; z-index: 4;
-    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.04em;
-    color: var(--amber); text-shadow: 0 0 8px rgba(255,180,84,.5); pointer-events: none; }
-  .scope .readout .id { color: var(--faint); text-shadow: none; }
-  .scope .gain { position: absolute; right: 12px; top: 10px; z-index: 4;
-    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--faint); pointer-events: none; }
+  /* the scope IS the sound control: click the wave to enable / mute */
+  .scope { cursor: pointer; transition: border-color .15s; }
+  .scope:hover { border-color: #3a322a; }
+  .scope:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .scope-hint { position: absolute; left: 14px; bottom: 12px; z-index: 4; display: inline-flex;
+    align-items: center; gap: 8px; pointer-events: none; font-family: var(--mono); font-size: 0.74rem;
+    color: var(--amber); text-shadow: 0 0 9px rgba(255,180,84,.45); transition: color .2s, text-shadow .2s; }
+  .scope-hint svg { width: 17px; height: 17px; }
+  .scope.on .scope-hint { color: var(--dim); text-shadow: none; }
+  .scope-hint .ico-on { display: none; }
+  .scope.on .scope-hint .ico-on { display: inline; }
+  .scope.on .scope-hint .ico-off { display: none; }
 
   .controls { margin-top: 14px; display: flex; flex-direction: column; gap: 12px; }
   .ctl-row { display: flex; align-items: center; gap: 10px; }
   .ctl-label { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.14em;
     text-transform: uppercase; color: var(--faint); width: 50px; flex: 0 0 auto; }
-
-  /* power switch (doubles as the browser-autoplay unlock) */
-  .power { display: inline-flex; align-items: center; gap: 9px; cursor: pointer;
-    background: var(--bg-2); border: 1px solid var(--line-2); color: var(--dim);
-    border-radius: 999px; padding: 8px 16px 8px 12px; font-family: var(--mono); font-size: 0.8rem;
-    transition: color .15s, border-color .15s, background .15s; }
-  .power svg { width: 15px; height: 15px; }
-  .power .pwr { stroke: var(--faint); transition: stroke .15s; }
-  .power:hover { color: var(--text); border-color: var(--line-2); }
-  .power.on { color: var(--amber); border-color: var(--amber-lo); background: rgba(255,180,84,.08); }
-  .power.on .pwr { stroke: var(--amber); }
 
   /* voice selector: segmented, one accent */
   .voices { display: inline-flex; background: var(--bg-2); border: 1px solid var(--line-2);
@@ -185,42 +180,6 @@
   .sec-head { font-family: var(--mono); font-weight: 700; letter-spacing: -0.03em;
     font-size: clamp(1.7rem, 3.4vw, 2.5rem); line-height: 1.05; }
   .sec-head .lit { color: var(--amber); }
-  .sec-intro { color: var(--dim); margin-top: 14px; max-width: 56ch; font-size: 1.02rem; }
-
-  /* ---------- timeline ---------- */
-  .seq-bar { display: flex; align-items: center; gap: 16px; margin: 34px 0 30px; flex-wrap: wrap; }
-  .play-session { display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
-    background: var(--amber); color: var(--ink); border: 0; border-radius: 999px;
-    padding: 11px 22px 11px 18px; font-family: var(--mono); font-weight: 700; font-size: 0.86rem;
-    transition: background .15s, transform .08s; }
-  .play-session:hover { background: var(--amber-hi); }
-  .play-session:active { transform: translateY(1px); }
-  .play-session[disabled] { opacity: .55; cursor: default; }
-  .play-session svg { width: 13px; height: 13px; fill: var(--ink); }
-  .seq-hint { font-family: var(--mono); font-size: 0.76rem; color: var(--faint); }
-
-  .track { position: relative; display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px;
-    padding-top: 26px; }
-  /* the signal line running through the session */
-  .track .rail { position: absolute; left: 0; right: 0; top: 8px; height: 2px;
-    background: var(--line-2); border-radius: 2px; }
-  .track .rail .fill { position: absolute; inset: 0; background: var(--amber); border-radius: 2px;
-    transform: scaleX(0); transform-origin: left center; transition: transform .5s var(--ease);
-    box-shadow: 0 0 10px rgba(255,180,84,.6); }
-  .node { position: relative; background: none; border: 0; cursor: pointer; text-align: left;
-    padding: 16px 0 0; font-family: inherit; }
-  .node .dot { position: absolute; top: -22px; left: 0; width: 11px; height: 11px; border-radius: 50%;
-    background: var(--bg-2); border: 2px solid var(--line-2); transition: all .25s var(--ease); }
-  .node .nn { display: block; font-family: var(--mono); font-weight: 600; font-size: 0.92rem;
-    color: var(--text); }
-  .node .nw { display: block; font-family: var(--mono); font-size: 0.66rem; color: var(--amber-lo);
-    margin: 3px 0 6px; letter-spacing: 0.02em; }
-  .node .nd { display: block; font-size: 0.82rem; color: var(--dim); line-height: 1.45; }
-  .node:hover .dot { border-color: var(--amber); }
-  .node:hover .nn { color: var(--amber-hi); }
-  .node.lit .dot { background: var(--amber); border-color: var(--amber);
-    box-shadow: 0 0 0 5px rgba(255,180,84,.16), 0 0 16px rgba(255,180,84,.55); }
-  .node.lit .nn { color: var(--amber-hi); }
 
   /* ---------- faq ---------- */
   .faq-list { margin-top: 30px; max-width: 760px; }
@@ -262,11 +221,6 @@
     .install { border-radius: 20px; }
     .install .cmds > span { white-space: normal; overflow-wrap: anywhere; }
     .install .cmds { font-size: 0.74rem; padding-left: 20px; }
-    .track { grid-template-columns: 1fr; gap: 0; padding-top: 6px; }
-    .track .rail { left: 5px; top: 0; bottom: 0; right: auto; width: 2px; height: auto; }
-    .track .rail .fill { transform-origin: top center; transform: scaleY(0); }
-    .node { padding: 14px 0 14px 26px; }
-    .node .dot { top: 18px; left: 0; }
   }
   @media (max-width: 560px) {
     .keys { grid-template-columns: repeat(2, 1fr); }
@@ -281,7 +235,7 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .reveal { transition: none; }
-    .track .rail .fill, .node .dot, .key.fire { transition: none; animation: none; }
+    .key.fire { transition: none; animation: none; }
   }
 </style>
 <!-- Progressive enhancement: only hide reveal elements when JS runs AND motion is
@@ -332,24 +286,22 @@
     </div>
 
     <div class="instrument">
-      <div class="scope">
+      <div class="scope" id="scope-ctl" role="button" tabindex="0" aria-pressed="false" aria-label="Enable sound">
         <canvas id="scope" aria-hidden="true"></canvas>
-        <span class="gain">GAIN ×3.0</span>
-        <span class="readout"><span class="id" id="ro-id">CH</span> <span id="ro-txt">press power</span></span>
+        <span class="scope-hint">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 9 H6 L10 5 V19 L6 15 H3 Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            <g class="ico-on">
+              <path d="M13 9.2 a3.4 3.4 0 0 1 0 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              <path d="M15.7 6.6 a6.6 6.6 0 0 1 0 10.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </g>
+            <g class="ico-off"><path d="M14 9.5 L19 14.5 M19 9.5 L14 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></g>
+          </svg>
+          <span class="hint-tx">click to enable sound</span>
+        </span>
       </div>
 
       <div class="controls">
-        <div class="ctl-row">
-          <button class="power" id="power" aria-pressed="false" aria-label="Enable sound">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path class="pwr" d="M12 3 V11" stroke-width="2" stroke-linecap="round"/>
-              <path class="pwr" d="M6.6 6.8 A8 8 0 1 0 17.4 6.8" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-            <span id="power-txt">enable sound</span>
-          </button>
-          <span class="seq-hint">then play a key</span>
-        </div>
-
         <div class="ctl-row">
           <span class="ctl-label">voice</span>
           <div class="voices" role="tablist" aria-label="Personality">
@@ -367,56 +319,19 @@
           <div class="keys" id="keys" style="flex:1">
             <button class="key sel" data-ev="start"><span class="kn">start</span><span class="kd">session begins</span></button>
             <button class="key" data-ev="submit"><span class="kn">submit</span><span class="kd">you send</span></button>
-            <button class="key" data-ev="done"><span class="kn">done</span><span class="kd">finished</span></button>
             <button class="key" data-ev="permission"><span class="kn">permission</span><span class="kd">needs you</span></button>
             <button class="key" data-ev="error"><span class="kn">error</span><span class="kd">tool failed</span></button>
             <button class="key" data-ev="precompact"><span class="kn">precompact</span><span class="kd">compacting</span></button>
+            <button class="key" data-ev="done"><span class="kn">done</span><span class="kd">finished</span></button>
           </div>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- TIMELINE: one session, six cues -->
-  <section data-cue="submit">
-    <h2 class="sec-head reveal">One session, <span class="lit">six cues.</span></h2>
-    <p class="sec-intro reveal">Each moment gets the same sound every time. Learn them once and
-      you'll know your agent by ear, from across the room.</p>
-
-    <div class="seq-bar reveal">
-      <button class="play-session" id="play-session" aria-label="Play a whole session">
-        <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1 L11 6 L2 11 Z"/></svg>
-        play a session
-      </button>
-      <span class="seq-hint">or click any moment to hear it</span>
-    </div>
-
-    <div class="track reveal" id="track">
-      <div class="rail"><div class="fill" id="rail-fill"></div></div>
-      <button class="node" data-ev="start"><span class="dot"></span>
-        <span class="nn">start</span><span class="nw">session opens</span>
-        <span class="nd">The voice for this session announces itself.</span></button>
-      <button class="node" data-ev="submit"><span class="dot"></span>
-        <span class="nn">submit</span><span class="nw">you send</span>
-        <span class="nd">A soft tap confirms your prompt landed.</span></button>
-      <button class="node" data-ev="permission"><span class="dot"></span>
-        <span class="nn">permission</span><span class="nw">it needs you</span>
-        <span class="nd">The one that pulls you back to the keyboard.</span></button>
-      <button class="node" data-ev="error"><span class="dot"></span>
-        <span class="nn">error</span><span class="nw">a tool fails</span>
-        <span class="nd">A low note, so a snag never passes silently.</span></button>
-      <button class="node" data-ev="precompact"><span class="dot"></span>
-        <span class="nn">precompact</span><span class="nw">context trims</span>
-        <span class="nd">A quiet transition as memory compacts.</span></button>
-      <button class="node" data-ev="done"><span class="dot"></span>
-        <span class="nn">done</span><span class="nw">task complete</span>
-        <span class="nd">The tone that means you can look back over.</span></button>
-    </div>
-  </section>
-
   <!-- FAQ -->
   <section data-cue="precompact">
-    <h2 class="sec-head reveal">Good <span class="lit">questions.</span></h2>
+    <h2 class="sec-head reveal">Common <span class="lit">questions.</span></h2>
     <div class="faq-list reveal">
       <details><summary>Does it slow Claude Code down?<span class="plus">+</span></summary>
         <div class="ans">No. Each hook backgrounds the player and returns instantly. No daemon, no
@@ -455,9 +370,8 @@
   /* Preserved from the plugin: GAIN matches afplay -v 3.0; the URL scheme is
      sounds/<voice>/<event>/<voice>-<event>[-variant].mp3 ; submit has 3 variants. */
   var GAIN = 3.0, SUBMIT_VARIANTS = 3;
-  var VOICES = { chime: "CH", hum: "HM", ping: "PG" };
   var ctx = null, master = null, analyser = null, buffers = {};
-  var enabled = false, voice = "chime", currentEv = "start", scopeEv = "start", energy = 0;
+  var enabled = false, voice = "chime", currentEv = "start", scopeEv = "start", energy = 0, idleAmt = 1;
   var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function audioCtx() {
@@ -494,7 +408,6 @@
       src.buffer = buf; src.connect(master); src.start();
     }).catch(function () { /* graceful silence, exactly like the real plugin */ });
     scopeEv = ev;
-    setReadout(ev);
     return true;
   }
 
@@ -526,7 +439,11 @@
     g.setTransform(DPR, 0, 0, DPR, 0, 0);
     g.fillStyle = "#0a0908"; g.fillRect(0, 0, W, H);
   }
-  window.addEventListener("resize", resize); resize();
+  // ResizeObserver keeps the canvas buffer matched to the displayed scope even when
+  // layout settles after fonts load (a one-time resize() can fire too early).
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(cv);
+  else window.addEventListener("resize", resize);
+  resize();
 
   function draw(t) {
     var time = t * 0.001;
@@ -544,8 +461,11 @@
     energy += (live - energy) * 0.2;
 
     var cy = H * 0.5, AMP = H * 0.40;
-    var drive = Math.min(1, energy * 9);                     // how present the cue is, 0..1
-    var idleK = reduce ? 0 : (1 - Math.min(1, energy * 11)); // idle drift fades out as a cue plays
+    // gentle drift ONLY while muted (a "still here" indicator); once unmuted the wave
+    // rests flat and only moves to match a sound that is actually playing.
+    var idleTarget = (enabled || reduce) ? 0 : 1;
+    idleAmt += (idleTarget - idleAmt) * 0.08;
+    var drive = enabled ? Math.min(1, energy * 9) : 0;
     var sig = SIG[scopeEv] || SIG.start;
 
     g.lineWidth = 1.8; g.lineJoin = "round"; g.lineCap = "round";
@@ -562,7 +482,7 @@
       var sigV = Math.sin(frac * TAU * sig.cyc + time * sig.sp + sig.ph) * packet * sig.amp * drive;
       // a couple of slow humps when nothing is playing
       var idleV = (Math.sin(frac * TAU * 1.8 + time * 1.3) * 0.13
-                 + Math.sin(frac * TAU * 2.9 - time * 0.8) * 0.045) * idleK;
+                 + Math.sin(frac * TAU * 2.9 - time * 0.8) * 0.045) * idleAmt;
       var v = (sigV + idleV) * taper;
       var x = frac * W, y = cy + v * AMP;
       if (k === 0) g.moveTo(x, y); else g.lineTo(x, y);
@@ -573,33 +493,29 @@
   }
   requestAnimationFrame(draw);
 
-  /* ============================ readout ============================ */
-  var roId = document.getElementById("ro-id"), roTxt = document.getElementById("ro-txt");
-  function setReadout(ev) {
-    roId.textContent = VOICES[voice];
-    roTxt.textContent = enabled ? ev : "press power";
-  }
-
-  /* ============================ power / unlock ============================ */
-  var power = document.getElementById("power"), powerTxt = document.getElementById("power-txt");
+  /* ====================== sound toggle: the scope IS the control ====================== */
+  var scopeCtl = document.getElementById("scope-ctl"), hintTx = document.querySelector(".hint-tx");
   function setPower(on) {
     if (enabled === on) return;
     enabled = on;
-    power.classList.toggle("on", on);
-    power.setAttribute("aria-pressed", on ? "true" : "false");
-    powerTxt.textContent = on ? "sound on" : "enable sound";
-    setReadout(currentEv);
+    scopeCtl.classList.toggle("on", on);
+    scopeCtl.setAttribute("aria-pressed", on ? "true" : "false");
+    scopeCtl.setAttribute("aria-label", on ? "Mute sound" : "Enable sound");
+    hintTx.textContent = on ? "sound on" : "click to enable sound";
   }
-  power.addEventListener("click", function () {
-    if (enabled) { setPower(false); roTxt.textContent = "press power"; return; }
+  function toggleSound() {
+    if (enabled) { setPower(false); return; }
     audioCtx();                       // unlock inside the user gesture
     setPower(true);
-    play("start", { force: true });   // power-on plays the session theme
+    play("start", { force: true });   // first unmute plays the session-start cue
+  }
+  scopeCtl.addEventListener("click", toggleSound);
+  scopeCtl.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleSound(); }
   });
 
   /* ============================ select helpers ============================ */
   var keyEls = document.querySelectorAll(".key");
-  var nodeEls = document.querySelectorAll(".node");
   function setEvent(ev, flashKey) {
     currentEv = ev;
     keyEls.forEach(function (k) {
@@ -607,7 +523,6 @@
       k.classList.toggle("sel", on);
       if (on && flashKey) { k.classList.remove("fire"); void k.offsetWidth; k.classList.add("fire"); }
     });
-    nodeEls.forEach(function (n) { n.classList.toggle("lit", n.dataset.ev === ev); });
   }
 
   /* voice selector */
@@ -625,37 +540,6 @@
   /* event keys */
   keyEls.forEach(function (k) {
     k.addEventListener("click", function () { setEvent(k.dataset.ev, true); play(k.dataset.ev, { force: true }); });
-  });
-
-  /* timeline nodes */
-  nodeEls.forEach(function (n) {
-    n.addEventListener("click", function () { setEvent(n.dataset.ev, true); play(n.dataset.ev, { force: true }); });
-  });
-
-  /* ============================ session sequencer ============================ */
-  var SEQ = ["start", "submit", "permission", "error", "precompact", "done"];
-  var railFill = document.getElementById("rail-fill");
-  var playBtn = document.getElementById("play-session");
-  var seqRunning = false;
-  function railTo(frac) {
-    railFill.style.transform = (window.innerWidth <= 640 ? "scaleY(" : "scaleX(") + frac + ")";
-  }
-  playBtn.addEventListener("click", function () {
-    if (seqRunning) return;
-    seqRunning = true; playBtn.setAttribute("disabled", "");
-    audioCtx(); setPower(true);
-    var i = 0, gap = reduce ? 520 : 720;
-    (function tick() {
-      if (i >= SEQ.length) {
-        setTimeout(function () { seqRunning = false; playBtn.removeAttribute("disabled"); }, 600);
-        return;
-      }
-      var ev = SEQ[i];
-      setEvent(ev, true);
-      play(ev, { force: true });
-      railTo((i + 1) / SEQ.length);
-      i++; setTimeout(tick, gap);
-    })();
   });
 
   /* ============================ scroll cues ============================ */
@@ -688,7 +572,6 @@
     });
   });
 
-  setReadout(currentEv);
 })();
 </script>
 </body>
