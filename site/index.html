@@ -86,18 +86,22 @@
     margin: 22px 0 30px; max-width: 30ch; }
   .pitch .sub b { color: var(--text); font-weight: 600; }
 
-  .install { display: flex; align-items: stretch; gap: 0; max-width: 460px;
-    background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-md);
+  .install { display: flex; align-items: stretch; gap: 0; max-width: 470px;
+    background: var(--bg-1); border: 1px solid var(--line-2); border-radius: var(--r-lg);
     overflow: hidden; }
-  .install .cmds { flex: 1; padding: 12px 14px; font-family: var(--mono); font-size: 0.76rem;
-    line-height: 1.85; min-width: 0; }
+  .install .cmds { flex: 1; padding: 14px 16px; font-family: var(--mono); font-size: 0.8rem;
+    line-height: 1.9; min-width: 0; }
   .install .cmds span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .install .cmds .pr { color: var(--amber); user-select: none; }
-  .install button { flex: 0 0 auto; align-self: stretch; background: var(--amber); color: var(--ink);
-    border: 0; padding: 0 18px; font-family: var(--mono); font-weight: 700; font-size: 0.78rem;
-    cursor: pointer; transition: background .15s; }
-  .install button:hover { background: var(--amber-hi); }
-  .install button:active { transform: translateY(1px); }
+  /* understated copy affordance: a quiet COPY + glyph that brightens to amber */
+  .copy-btn { flex: 0 0 auto; align-self: stretch; display: inline-flex; align-items: center; gap: 8px;
+    background: none; border: 0; border-left: 1px solid var(--line); color: var(--dim);
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.13em; text-transform: uppercase;
+    padding: 0 18px; cursor: pointer; transition: color .15s, background .15s; }
+  .copy-btn svg { width: 14px; height: 14px; flex: 0 0 auto; }
+  .copy-btn:hover { color: var(--amber); background: rgba(255,180,84,.05); }
+  .copy-btn:active { color: var(--amber-hi); }
+  .copy-btn.done { color: var(--amber); }
   .meta { margin-top: 16px; font-family: var(--mono); font-size: 0.76rem; color: var(--faint); }
   .meta a { color: var(--faint); text-decoration: underline; text-underline-offset: 2px; }
   .meta a:hover { color: var(--dim); }
@@ -308,7 +312,13 @@
           <span><span class="pr">&gt;</span> /plugin marketplace add mannanj/claude-cues</span>
           <span><span class="pr">&gt;</span> /plugin install claude-cues@claude-cues</span>
         </div>
-        <button id="copy-btn" aria-label="Copy install commands">copy</button>
+        <button id="copy-btn" class="copy-btn" aria-label="Copy install commands">
+          <span class="ct">copy</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
+            <path d="M5 15.5 V6 a2.5 2.5 0 0 1 2.5-2.5 H16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+          </svg>
+        </button>
       </div>
       <p class="meta">macOS, Linux, ~200KB, zero deps ·
         <a href="https://github.com/mannanj/claude-cues">source</a></p>
@@ -492,20 +502,22 @@
      so the six events read differently at a glance. The amplitude breathes with the
      live audio energy of the real cue, so it still reacts to the actual sound. */
   var SIG = {
-    start:      { cyc: 2.0, amp: 0.80, sp: 1.1, ph: 0.0, shape: "swell"  },  // rising swell
-    submit:     { cyc: 1.0, amp: 0.70, sp: 2.4, ph: 1.0, shape: "center" },  // single soft tap
-    done:       { cyc: 1.8, amp: 0.74, sp: 0.7, ph: 0.5, shape: "decay"  },  // settling resolve
-    permission: { cyc: 2.6, amp: 0.88, sp: 1.8, ph: 0.0, shape: "double" },  // attention double
-    error:      { cyc: 1.2, amp: 0.72, sp: 0.5, ph: 0.0, shape: "low"    },  // low slow wave
-    precompact: { cyc: 3.0, amp: 0.44, sp: 0.9, ph: 0.0, shape: "fade"   }   // quiet fading ripple
+    start:      { cyc: 2.0, amp: 0.74, sp: 1.1, ph: 0.0, shape: "swell"  },  // rising swell
+    submit:     { cyc: 2.3, amp: 0.66, sp: 2.0, ph: 1.0, shape: "center" },  // quick, middle-weighted
+    done:       { cyc: 2.7, amp: 0.74, sp: 0.8, ph: 0.5, shape: "decay"  },  // settling resolve
+    permission: { cyc: 2.4, amp: 0.82, sp: 1.7, ph: 0.0, shape: "double" },  // attention, two lobes
+    error:      { cyc: 2.1, amp: 0.72, sp: 0.6, ph: 0.0, shape: "low"    },  // broad low wave
+    precompact: { cyc: 3.0, amp: 0.52, sp: 0.9, ph: 0.0, shape: "fade"   }   // quiet fading ripple
   };
+  // gentle amplitude envelopes (floored, so 2-3 waves stay visible) that tilt the
+  // energy differently per cue, giving each its own character without hiding waves.
   function shapeEnv(shape, f) {
-    if (shape === "swell")  return Math.pow(f, 0.7);
-    if (shape === "decay")  return Math.pow(1 - f, 0.7);
-    if (shape === "center") return Math.exp(-Math.pow((f - 0.5) * 5.5, 2));
-    if (shape === "double") return Math.exp(-Math.pow((f - 0.34) * 7, 2)) + Math.exp(-Math.pow((f - 0.66) * 7, 2));
-    if (shape === "low")    return 0.7 + 0.3 * Math.sin(f * Math.PI);
-    if (shape === "fade")   return (1 - f) * (0.55 + 0.45 * Math.sin(f * Math.PI));
+    if (shape === "swell")  return 0.42 + 0.58 * f;                     // grows to the right
+    if (shape === "decay")  return 0.42 + 0.58 * (1 - f);               // grows to the left
+    if (shape === "center") return 0.46 + 0.54 * Math.sin(f * Math.PI); // fattest in the middle
+    if (shape === "double") return 0.55 + 0.35 * Math.cos(f * 12.566);  // two lobes (cos, 2 periods)
+    if (shape === "low")    return 0.80 + 0.20 * Math.sin(f * Math.PI); // broad and full
+    if (shape === "fade")   return 0.40 + 0.55 * (1 - 0.85 * f);        // gentle fade to the right
     return 1;
   }
 
@@ -669,8 +681,9 @@
   document.getElementById("copy-btn").addEventListener("click", function () {
     var cmds = "/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues";
     navigator.clipboard.writeText(cmds).then(function () {
-      var b = document.getElementById("copy-btn");
-      b.textContent = "copied"; setTimeout(function () { b.textContent = "copy"; }, 1500);
+      var b = document.getElementById("copy-btn"), t = b.querySelector(".ct");
+      b.classList.add("done"); if (t) t.textContent = "copied";
+      setTimeout(function () { b.classList.remove("done"); if (t) t.textContent = "copy"; }, 1500);
     });
   });
 
