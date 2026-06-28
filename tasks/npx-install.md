@@ -1,6 +1,6 @@
 # Task — make `npx skills add mannanj/claude-cues` actually work
 
-**Status:** queued (UI shipped, mechanism NOT built) · 2026-06-27
+**Status:** queued · research RESOLVED, mechanism NOT built · hero command is currently non-functional · 2026-06-27
 **Files:** `site/index.html` (hero install box), repo root (needs `package.json` / publish), `install.sh`
 **Origin:** The landing page hero now shows `$ npx skills add mannanj/claude-cues` to match the taste-skill reference UI exactly. The command is **display-only right now** — it is not yet a real, working install path. This task is to make it real (or swap it for the right real command).
 
@@ -11,10 +11,14 @@
 
 So it is unverified whether the `skills` CLI can install a plugin that needs hook/settings wiring, or whether it only handles SKILL.md skills. **Resolve this before trusting the displayed command.**
 
-## To figure out (research, was interrupted before finishing)
-1. Identify the npm package behind `npx skills ...` (exact name, repo, maintainer, latest version).
-2. What does `skills add <user>/<repo>` actually do? Does it clone the repo and copy files into `~/.claude/skills/`? Does it run a repo install script? Does it ever touch `~/.claude/settings.json`?
-3. **Key question:** can it wire up hooks + copy the `sounds/` folder, or is it skills-only? If skills-only, `npx skills add mannanj/claude-cues` will NOT correctly install claude-cues.
+## Research findings (RESOLVED 2026-06-27)
+Verified directly via npm:
+- **`skills` = `vercel-labs/skills`** (v1.5.13, "The open agent skills ecosystem"), repo https://github.com/vercel-labs/skills. `bin: skills -> bin/cli.mjs`.
+- **It is SKILL.md-only.** `skills add <source>` installs *skill packages* (folders containing `SKILL.md`) into agent directories by symlink/copy. Evidence from `skills --help`: `init` "creates `<name>/SKILL.md`"; `--skill`, `--full-depth` ("search subdirectories even when a root SKILL.md exists"). It does NOT merge hooks into `~/.claude/settings.json` and does NOT install a sounds folder for a plugin.
+- **`claude-cues` has no `SKILL.md`** (it's a hooks plugin: `bin/play.sh` + `sounds/` + 6 hooks). So **`npx skills add mannanj/claude-cues` will not install it** — it would find no skill.
+- **`npx claude-cues` also does not work**: no `package.json` in the repo, and `claude-cues` is unpublished on npm (404).
+
+**Conclusion: the hero command `$ npx skills add mannanj/claude-cues` is display-only and non-functional. Go with Option A (publish our own `npx claude-cues`).**
 
 ## Likely outcomes / options
 - **Option A — publish our own npx CLI.** Add a root `package.json` with `bin: { "claude-cues": "bin/cli.js" }` and a `files` allowlist (ship `bin/`, `sounds/`, `install.sh`). Write `bin/cli.js` (Node) that reimplements `install.sh`'s logic from the package's own directory (copy to `~/.claude/claude-cues/`, merge the six hooks into `~/.claude/settings.json` with a backup, idempotently). Then the real one-liner is **`npx claude-cues`** (and `npx claude-cues uninstall`). Check name availability: `npmjs.com/package/claude-cues`; fall back to `@mannanj/claude-cues` (then the command is `npx @mannanj/claude-cues`). Publish with `npm publish` (needs the user's npm login).
