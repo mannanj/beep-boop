@@ -258,7 +258,9 @@
   }
   @media (max-width: 640px) {
     section { padding: 64px 0; }
-    /* wrap the full command on phones instead of truncating it */
+    /* long /plugin commands wrap on phones; soften the pill to a rounded box */
+    .install { border-radius: 20px; }
+    .install .cmds > span { white-space: normal; overflow-wrap: anywhere; }
     .install .cmds { font-size: 0.74rem; padding-left: 20px; }
     .track { grid-template-columns: 1fr; gap: 0; padding-top: 6px; }
     .track .rail { left: 5px; top: 0; bottom: 0; right: auto; width: 2px; height: auto; }
@@ -270,7 +272,7 @@
     .keys { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 430px) {
-    /* small phones: keep the command on one readable line, copy becomes icon-only */
+    /* small phones: copy collapses to icon-only, smaller command text */
     .copy-btn .ct { display: none; }
     .copy-btn { padding: 10px 16px; }
     .install .cmds { font-size: 0.66rem; padding-left: 16px; }
@@ -314,9 +316,10 @@
 
       <div class="install">
         <div class="cmds">
-          <span><span class="pr">$</span> npx skills add mannanj/claude-cues</span>
+          <span><span class="pr">&gt;</span> /plugin marketplace add mannanj/claude-cues</span>
+          <span><span class="pr">&gt;</span> /plugin install claude-cues@claude-cues</span>
         </div>
-        <button id="copy-btn" class="copy-btn" aria-label="Copy install command">
+        <button id="copy-btn" class="copy-btn" aria-label="Copy install commands">
           <span class="ct">copy</span>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
@@ -677,7 +680,7 @@
   /* ============================ brand + copy ============================ */
   document.getElementById("brand").addEventListener("click", function () { play("start", { force: true }); });
   document.getElementById("copy-btn").addEventListener("click", function () {
-    var cmds = "npx skills add mannanj/claude-cues";
+    var cmds = "/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues";
     navigator.clipboard.writeText(cmds).then(function () {
       var b = document.getElementById("copy-btn"), t = b.querySelector(".ct");
       b.classList.add("done"); if (t) t.textContent = "copied";
