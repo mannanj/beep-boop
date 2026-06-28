@@ -1,10 +1,10 @@
 {
-  "name": "claude-cues",
-  "description": "Gentle sound cues for Claude Code — a different sound personality each session tells you when your agent starts, finishes, errors, or needs you.",
+  "name": "beep-boop",
+  "description": "Lovable sound cues for your coding agent — a different voice each session tells you when it starts, finishes, errors, or needs you.",
   "version": "1.0.0",
   "author": { "name": "Mannan Javid", "url": "https://github.com/mannanj" },
-  "homepage": "https://claude-cues.pages.dev",
-  "repository": "https://github.com/mannanj/claude-cues",
+  "homepage": "https://beeboop.dev",
+  "repository": "https://github.com/mannanj/beep-boop",
   "license": "MIT",
-  "keywords": ["notifications", "sound", "audio", "hooks", "chimes", "ambient"]
+  "keywords": ["notifications", "sound", "audio", "hooks", "chimes", "ambient", "beep-boop", "coding-agents"]
 }

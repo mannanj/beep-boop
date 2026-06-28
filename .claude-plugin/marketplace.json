@@ -1,14 +1,14 @@
 {
-  "name": "claude-cues",
-  "description": "Gentle sound cues for Claude Code — original audio personalities, one per session.",
+  "name": "beep-boop",
+  "description": "Lovable sounds for coding agents — original audio personalities, one per session.",
   "owner": { "name": "Mannan Javid", "email": "mannanjavid@protonmail.com" },
   "plugins": [
     {
-      "name": "claude-cues",
+      "name": "beep-boop",
       "source": "./",
-      "description": "Gentle sound cues for Claude Code — a different sound personality each session tells you when your agent starts, finishes, errors, or needs you.",
+      "description": "Lovable sound cues for your coding agent — a different voice each session tells you when it starts, finishes, errors, or needs you.",
       "license": "MIT",
-      "homepage": "https://claude-cues.pages.dev"
+      "homepage": "https://beeboop.dev"
     }
   ]
 }

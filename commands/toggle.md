@@ -1,5 +1,5 @@
 ---
-description: Toggle claude-cues sounds on or off
+description: Toggle beep-boop sounds on or off
 allowed-tools: Bash("${CLAUDE_PLUGIN_ROOT}/bin/play.sh":*)
 ---
 

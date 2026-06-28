@@ -1,4 +1,4 @@
-# claude-cues — the landing page, codified
+# bee boop — the landing page, codified
 
 > This file protects `site/index.html`. The page reached its current form by
 > **subtraction** — read the git log: `Landing: the wave IS the sound control; drop
@@ -11,9 +11,9 @@
 ## The one idea
 
 **The page is a single playable instrument.** You arrive, you see an amber oscilloscope,
-you click it, you hear claude-cues. That one gesture delivers the entire pitch at once:
+you click it, you hear bee boop. That one gesture delivers the entire pitch at once:
 the problem (you weren't watching), the solution (you heard it anyway), the proof (it's
-instant and pleasant), and the how (six moments, three voices). The demo is not a
+instant and pleasant), and the how (six moments, four voices). The demo is not a
 supporting element on the page. **The demo is the page.**
 
 Everything else — the headline, the install pill, the FAQ — exists only to frame that
@@ -41,7 +41,7 @@ design.
 - **The scope itself is the on/off control** — you click the wave to enable sound. The
   control and the canvas are the same object. There is no separate "play" button cluttering
   it. This is the move the last commit is named after, and it is the design's high point.
-- A segmented **voice selector**: `chime` (bright) · `hum` (warm) · `ping` (dry).
+- A segmented **voice selector**: `chime` (bright) · `hum` (warm) · `ping` (dry) · `oak` (living).
 - Six **event keys**: start, submit, permission, error, precompact, done — each a tiny
   labeled button that plays that real cue. This is the complete, scarce control surface.
 - After sound is enabled, scrolling fires each section's signature cue once. The page
@@ -51,8 +51,8 @@ design.
 - H1: **"Hear it work."** (`work.` in amber). Three words. It is an instruction for the
   instrument you are looking at, and it contains the product's whole soul: *sound* + *it
   functions*.
-- Sub: one line — *"claude-cues gives Claude Code a voice. Six soft cues for what it's
-  doing, so you can walk away and still know."*
+- Sub: one line — *"Bee Boop gives your coding agent a voice — six soft little sounds for
+  what it's doing, so you can look away and still know."*
 - Install: the two real `/plugin` commands in a dark pill with a quiet COPY.
 - Trust meta: one line — `macOS, Linux, ~200KB, zero deps · source`.
 - Footer tag: *"made for people who'd rather listen than look."*

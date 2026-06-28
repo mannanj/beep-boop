@@ -1,5 +1,5 @@
 .DS_Store
-*.claude-cues-backup
+*.beep-boop-backup
 .claude/
 .claude/session-memory/
 .wrangler/

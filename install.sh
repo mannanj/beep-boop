@@ -1,9 +1,9 @@
 #!/bin/bash
-# claude-cues fallback installer — for Claude Code versions without /plugin,
+# beep-boop fallback installer — for Claude Code versions without /plugin,
 # or anyone who prefers not to use the plugin system.
 #
 # What it does (and nothing else):
-#   1. Copies this repo's bin/ + sounds/ to ~/.claude/claude-cues/
+#   1. Copies this repo's bin/ + sounds/ to ~/.claude/beep-boop/
 #   2. Safely MERGES six hook entries into ~/.claude/settings.json
 #      (never overwrites your existing hooks; backs the file up first)
 #
@@ -11,18 +11,18 @@
 set -euo pipefail
 
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DEST="$HOME/.claude/claude-cues"
+DEST="$HOME/.claude/beep-boop"
 SETTINGS="$HOME/.claude/settings.json"
 
 command -v python3 >/dev/null 2>&1 || { echo "error: python3 required (used once, to merge settings.json safely)"; exit 1; }
 
-echo "claude-cues: installing to $DEST"
+echo "beep-boop: installing to $DEST"
 mkdir -p "$DEST"
 cp -R "$SRC/bin" "$SRC/sounds" "$DEST/"
 chmod +x "$DEST/bin/play.sh"
 
 mkdir -p "$(dirname "$SETTINGS")"
-[ -f "$SETTINGS" ] && cp "$SETTINGS" "$SETTINGS.claude-cues-backup" && echo "claude-cues: backed up settings.json -> settings.json.claude-cues-backup"
+[ -f "$SETTINGS" ] && cp "$SETTINGS" "$SETTINGS.beep-boop-backup" && echo "beep-boop: backed up settings.json -> settings.json.beep-boop-backup"
 
 PLAY="$DEST/bin/play.sh" python3 - "$SETTINGS" <<'PYEOF'
 import json, os, sys
@@ -49,8 +49,8 @@ events = {
 for event, (arg, matcher) in events.items():
     cmd = f'"{play}" {arg}'
     entries = hooks.setdefault(event, [])
-    # idempotent: skip if any existing hook already calls claude-cues
-    if any("claude-cues" in h.get("command", "")
+    # idempotent: skip if any existing hook already calls beep-boop
+    if any("beep-boop" in h.get("command", "")
            for e in entries for h in e.get("hooks", [])):
         continue
     entry = {"hooks": [{"type": "command", "command": cmd}]}
@@ -62,8 +62,8 @@ with open(path, "w") as f:
     json.dump(settings, f, indent=2)
     f.write("\n")
 
-print("claude-cues: hooks merged into", path)
+print("beep-boop: hooks merged into", path)
 PYEOF
 
-echo "claude-cues: installed. Restart Claude Code (or run /hooks to verify)."
-echo "claude-cues: toggle anytime with: $DEST/bin/play.sh toggle"
+echo "beep-boop: installed. Restart Claude Code (or run /hooks to verify)."
+echo "beep-boop: toggle anytime with: $DEST/bin/play.sh toggle"

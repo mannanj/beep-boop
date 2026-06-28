@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>claude-cues: give Claude Code a voice</title>
-<meta name="description" content="Sound cues for every move Claude Code makes: start, done, blocked, needs you. Walk away from the terminal and let your ears do the thinking. Free, open source, one command.">
-<meta property="og:title" content="claude-cues: give Claude Code a voice">
-<meta property="og:description" content="Hear it work. Claude Code gets six soft cues, one per moment. Audition every voice on a live oscilloscope, then install with one command.">
-<meta property="og:url" content="https://claude-cues.pages.dev">
+<title>Bee Boop — lovable sounds for coding agents</title>
+<meta name="description" content="Bee Boop gives your coding agent a voice: soft little sounds for start, done, error, and needs-you. Look away from the terminal and let your ears do the thinking. Free, open source, one command for Claude Code.">
+<meta property="og:title" content="Bee Boop — lovable sounds for coding agents">
+<meta property="og:description" content="Hear it work. Your coding agent gets six soft cues, one per moment. Audition every voice on a live oscilloscope, then install with one command.">
+<meta property="og:url" content="https://beeboop.dev">
 <meta name="theme-color" content="#0c0b0a">
 <!--
-  claude-cues landing page.
+  bee boop landing page.
   Concept: an amber-phosphor oscilloscope instrument. The hero is a real, working
   device: pick a voice, press a key, and the scope draws the actual time-domain
   waveform of the cue while it plays. Sound made visible. Native CSS + vanilla JS,
@@ -105,6 +105,19 @@
   .meta { margin-top: 16px; font-family: var(--mono); font-size: 0.76rem; color: var(--faint); }
   .meta a { color: var(--faint); text-decoration: underline; text-underline-offset: 2px; }
   .meta a:hover { color: var(--dim); }
+
+  /* agent badges: who Bee Boop speaks for. one live, one soon — no prose, just the truth. */
+  .agents { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+  .agents-lbl { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--faint); margin-right: 2px; }
+  .agent { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono);
+    font-size: 0.78rem; color: var(--dim); background: var(--bg-2);
+    border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 13px; }
+  .agent.on { color: var(--text); border-color: var(--amber-lo); }
+  .agent.on::before { content: ""; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--amber); box-shadow: 0 0 8px rgba(255,180,84,.7); flex: 0 0 auto; }
+  .agent .soon { font-size: 0.56rem; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--faint); border: 1px solid var(--line-2); border-radius: 999px; padding: 1px 6px; }
 
   /* ---------- the instrument ---------- */
   .instrument { background: linear-gradient(180deg, var(--bg-1), #100e0c);
@@ -224,6 +237,9 @@
   }
   @media (max-width: 560px) {
     .keys { grid-template-columns: repeat(2, 1fr); }
+    /* 4-voice selector fills the row and shares space evenly so it never clips on phones */
+    .voices { flex: 1; }
+    .voice { flex: 1 1 0; min-width: 0; padding: 8px 6px; align-items: center; }
   }
   @media (max-width: 430px) {
     /* small phones: copy collapses to icon-only, smaller command text */
@@ -247,17 +263,17 @@
 <div class="wrap">
 
   <nav>
-    <button class="brand" id="brand" aria-label="claude-cues: play start sound">
+    <button class="brand" id="brand" aria-label="bee boop: play start sound">
       <svg viewBox="0 0 22 16" fill="none" aria-hidden="true">
         <path class="wv" d="M1 8 H4 L6 2 L9 14 L12 4 L15 11 L17 8 H21" stroke="#ffb454" stroke-width="1.6"
           stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      claude-cues
+      bee boop
     </button>
     <span class="nav-gh">
-      <a href="https://github.com/mannanj/claude-cues" aria-label="GitHub stars">
-        <img src="https://img.shields.io/github/stars/mannanj/claude-cues?style=flat&label=%E2%98%85&color=2a2521&labelColor=141210" alt="GitHub stars"></a>
-      <a href="https://github.com/mannanj/claude-cues">GitHub</a>
+      <a href="https://github.com/mannanj/beep-boop" aria-label="GitHub stars">
+        <img src="https://img.shields.io/github/stars/mannanj/beep-boop?style=flat&label=%E2%98%85&color=2a2521&labelColor=141210" alt="GitHub stars"></a>
+      <a href="https://github.com/mannanj/beep-boop">GitHub</a>
     </span>
   </nav>
 
@@ -265,13 +281,13 @@
   <header class="hero" data-cue="start">
     <div class="pitch">
       <h1>Hear it <span class="lit">work.</span></h1>
-      <p class="sub">claude-cues gives Claude Code a voice. Six soft cues for what it's
-        doing, so you can <b>walk away</b> and still know.</p>
+      <p class="sub">Bee Boop gives your coding agent a voice — six soft little
+        sounds for what it's doing, so you can <b>look away</b> and still know.</p>
 
       <div class="install">
         <div class="cmds">
-          <span><span class="pr">&gt;</span> /plugin marketplace add mannanj/claude-cues</span>
-          <span><span class="pr">&gt;</span> /plugin install claude-cues@claude-cues</span>
+          <span><span class="pr">&gt;</span> /plugin marketplace add mannanj/beep-boop</span>
+          <span><span class="pr">&gt;</span> /plugin install beep-boop@beep-boop</span>
         </div>
         <button id="copy-btn" class="copy-btn" aria-label="Copy install commands">
           <span class="ct">copy</span>
@@ -281,8 +297,15 @@
           </svg>
         </button>
       </div>
+
+      <div class="agents" aria-label="Works with">
+        <span class="agents-lbl">works with</span>
+        <span class="agent on">Claude&nbsp;Code</span>
+        <span class="agent">Codex<span class="soon">soon</span></span>
+      </div>
+
       <p class="meta">macOS, Linux, ~200KB, zero deps ·
-        <a href="https://github.com/mannanj/claude-cues">source</a></p>
+        <a href="https://github.com/mannanj/beep-boop">source</a></p>
     </div>
 
     <div class="instrument">
@@ -311,6 +334,8 @@
               <span class="nm">hum</span><span class="tg">warm</span></button>
             <button class="voice" role="tab" aria-selected="false" data-p="ping">
               <span class="nm">ping</span><span class="tg">dry</span></button>
+            <button class="voice" role="tab" aria-selected="false" data-p="oak">
+              <span class="nm">oak</span><span class="tg">living</span></button>
           </div>
         </div>
 
@@ -333,29 +358,29 @@
   <section data-cue="precompact">
     <h2 class="sec-head reveal">Common <span class="lit">questions.</span></h2>
     <div class="faq-list reveal">
-      <details><summary>Does it slow Claude Code down?<span class="plus">+</span></summary>
+      <details><summary>Does it slow your agent down?<span class="plus">+</span></summary>
         <div class="ans">No. Each hook backgrounds the player and returns instantly. No daemon, no
-          network, no telemetry: a shell script and 24 small mp3s.</div></details>
+          network, no telemetry: a shell script and 32 small mp3s.</div></details>
       <details><summary>Can I use my own sounds?<span class="plus">+</span></summary>
         <div class="ans">Yes. Drop a folder at <code>sounds/&lt;name&gt;/&lt;event&gt;/*.mp3</code> and it joins
           the rotation. Missing an event folder stays silent for that voice; it never borrows another.</div></details>
       <details><summary>How do I turn it off?<span class="plus">+</span></summary>
-        <div class="ans"><code>/claude-cues:toggle</code>, or set <code>ENABLED=0</code> in
-          <code>~/.claude/claude-cues/config</code>. Uninstall is one command.</div></details>
+        <div class="ans"><code>/beep-boop:toggle</code>, or set <code>ENABLED=0</code> in
+          <code>~/.claude/beep-boop/config</code>. Uninstall is one command.</div></details>
       <details><summary>Windows?<span class="plus">+</span></summary>
         <div class="ans">Not yet. The script no-ops on unsupported platforms, so nothing breaks.
           PRs welcome.</div></details>
       <details><summary>Is the audio really free?<span class="plus">+</span></summary>
-        <div class="ans">Yes. Every sound was synthesized for this project and dedicated to the public
-          domain (CC0). The code is MIT.</div></details>
+        <div class="ans">chime, hum, and ping are original tones, public domain (CC0). oak is sampled from
+          a recording of a living oak — credited in <code>sounds/CREDITS.md</code>. The code is MIT.</div></details>
     </div>
   </section>
 
   <footer>
     <div class="links">
-      <a href="https://github.com/mannanj/claude-cues">GitHub</a>
-      <a href="https://github.com/mannanj/claude-cues/blob/main/LICENSE">MIT</a>
-      <a href="https://github.com/mannanj/claude-cues/blob/main/sounds/LICENSE">CC0 audio</a>
+      <a href="https://github.com/mannanj/beep-boop">GitHub</a>
+      <a href="https://github.com/mannanj/beep-boop/blob/main/LICENSE">MIT</a>
+      <a href="https://github.com/mannanj/beep-boop/blob/main/sounds/CREDITS.md">sound credits</a>
     </div>
     <div class="tag mono">made for people who'd rather listen than look</div>
   </footer>
@@ -564,7 +589,7 @@
   /* ============================ brand + copy ============================ */
   document.getElementById("brand").addEventListener("click", function () { play("start", { force: true }); });
   document.getElementById("copy-btn").addEventListener("click", function () {
-    var cmds = "/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues";
+    var cmds = "/plugin marketplace add mannanj/beep-boop\n/plugin install beep-boop@beep-boop";
     navigator.clipboard.writeText(cmds).then(function () {
       var b = document.getElementById("copy-btn"), t = b.querySelector(".ct");
       b.classList.add("done"); if (t) t.textContent = "copied";

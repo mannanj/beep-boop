@@ -1,9 +1,9 @@
 #!/bin/bash
-# claude-cues uninstaller — removes the hooks added by install.sh and the
+# beep-boop uninstaller — removes the hooks added by install.sh and the
 # installed files. Leaves all your other hooks and settings untouched.
 set -euo pipefail
 
-DEST="$HOME/.claude/claude-cues"
+DEST="$HOME/.claude/beep-boop"
 SETTINGS="$HOME/.claude/settings.json"
 
 if [ -f "$SETTINGS" ]; then
@@ -18,7 +18,10 @@ hooks = settings.get("hooks", {})
 for event in list(hooks.keys()):
     kept = []
     for entry in hooks[event]:
-        inner = [h for h in entry.get("hooks", []) if "claude-cues" not in h.get("command", "")]
+        # remove our hooks — match the new name and the legacy claude-cues name,
+        # so this also cleans up installs made before the rebrand.
+        inner = [h for h in entry.get("hooks", [])
+                 if "beep-boop" not in h.get("command", "") and "claude-cues" not in h.get("command", "")]
         if inner:
             entry["hooks"] = inner
             kept.append(entry)
@@ -31,9 +34,9 @@ with open(path, "w") as f:
     json.dump(settings, f, indent=2)
     f.write("\n")
 
-print("claude-cues: hooks removed from", path)
+print("beep-boop: hooks removed from", path)
 PYEOF
 fi
 
 rm -rf "$DEST"
-echo "claude-cues: uninstalled. (State/config at ~/.claude/claude-cues removed.)"
+echo "beep-boop: uninstalled. (State/config at ~/.claude/beep-boop removed.)"

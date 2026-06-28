@@ -1,5 +1,5 @@
 #!/bin/bash
-# claude-cues — gentle sound cues for Claude Code.
+# bee boop — lovable sound cues for coding agents.
 # Called by Claude Code hooks: play.sh <event>
 #   events:      start | submit | done | permission | error | precompact
 #   subcommands: on | off | toggle | status
@@ -10,8 +10,8 @@
 #   - Missing sound for an event = graceful silence, never borrow a voice.
 
 PLUGIN_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SOUNDS_DIR="${CLAUDE_CUES_SOUNDS_DIR:-$PLUGIN_ROOT/sounds}"
-STATE_DIR="${CLAUDE_CUES_STATE_DIR:-$HOME/.claude/claude-cues}"
+SOUNDS_DIR="${BEEP_BOOP_SOUNDS_DIR:-$PLUGIN_ROOT/sounds}"
+STATE_DIR="${BEEP_BOOP_STATE_DIR:-$HOME/.claude/beep-boop}"
 CONFIG_FILE="$STATE_DIR/config"
 
 mkdir -p "$STATE_DIR" 2>/dev/null
@@ -35,16 +35,16 @@ set_config() { # set_config KEY VALUE — rewrite one key, preserve the rest
 
 # ---- subcommands ------------------------------------------------------------
 case "$1" in
-  on)     set_config ENABLED 1; echo "claude-cues: on";  exit 0 ;;
-  off)    set_config ENABLED 0; echo "claude-cues: off"; exit 0 ;;
+  on)     set_config ENABLED 1; echo "beep-boop: on";  exit 0 ;;
+  off)    set_config ENABLED 0; echo "beep-boop: off"; exit 0 ;;
   toggle)
-    if [ "$ENABLED" = "1" ]; then set_config ENABLED 0; echo "claude-cues: off"
-    else set_config ENABLED 1; echo "claude-cues: on"; fi
+    if [ "$ENABLED" = "1" ]; then set_config ENABLED 0; echo "beep-boop: off"
+    else set_config ENABLED 1; echo "beep-boop: on"; fi
     exit 0 ;;
   status)
     current="(none yet)"
     [ -f "$STATE_DIR/personality" ] && current=$(cat "$STATE_DIR/personality")
-    echo "claude-cues: enabled=$ENABLED volume=$VOLUME personality=$current pin=${PERSONALITY:-none}"
+    echo "beep-boop: enabled=$ENABLED volume=$VOLUME personality=$current pin=${PERSONALITY:-none}"
     echo "sounds: $SOUNDS_DIR"
     echo "config: $CONFIG_FILE"
     exit 0 ;;

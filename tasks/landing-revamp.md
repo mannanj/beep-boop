@@ -1,7 +1,7 @@
 # Task — Landing page full revamp (`site/index.html`)
 
 **Status:** building (spec + build, same session) · 2026-06-11
-**File:** `site/index.html` (single self-contained HTML, no build step) · deploys to claude-cues.pages.dev (Cloudflare Pages)
+**File:** `site/index.html` (single self-contained HTML, no build step) · deploys to beeboop.dev (Cloudflare Pages)
 **Assets:** `site/sounds/<personality>/<event>/*.mp3` — personalities `chime|hum|ping`; events `start, submit(×3 variants), done, permission, error, precompact`. All present, CC0.
 
 ## Goal
@@ -10,7 +10,7 @@ Brand-new design. A living audio **visualizer** as the centerpiece that animates
 ## Requirements
 
 ### 1. Concise copy (ruthless)
-- H1: **"Walk away."** Sub: one line — "claude-cues gives Claude Code a voice — start, done, blocked, needs you. It calls you back."
+- H1: **"Walk away."** Sub: one line — "beep-boop gives Claude Code a voice — start, done, blocked, needs you. It calls you back."
 - Section heads stay mono `## one-word` (hear it / how / install / faq).
 - `how` cards → one tight line each. FAQ answers → one sentence each. No filler, no hedging.
 
@@ -20,7 +20,7 @@ Brand-new design. A living audio **visualizer** as the centerpiece that animates
 - When a cue plays, route audio through a Web Audio `AnalyserNode` and draw the **real** waveform; ease back to idle when it ends.
 
 ### 3. Sound selector
-- Segmented control: `chime · hum · ping` (with one-word character under each). Selection drives every cue on the page.
+- Segmented control: `chime · hum · ping · oak` (with one-word character under each). Selection drives every cue on the page.
 - Event audition grid: `start · submit · done · permission · error · precompact` — click any to hear that exact cue in the selected personality. This is "select individual sounds."
 
 ### 4. Scroll + sound behavior (per user)
