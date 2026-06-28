@@ -92,8 +92,8 @@
     background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px; }
   .install .cmds { flex: 1; padding: 10px 8px 10px 24px; font-family: var(--mono); font-size: 0.8rem;
     line-height: 1.85; min-width: 0; }
-  .install .cmds span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .install .cmds .pr { color: var(--amber); user-select: none; }
+  .install .cmds > span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .install .cmds .pr { color: var(--amber); user-select: none; margin-right: 4px; }
   .copy-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 7px; background: none;
     border: 0; border-radius: 999px; color: var(--dim); font-family: var(--mono); font-size: 0.66rem;
     letter-spacing: 0.14em; text-transform: uppercase; padding: 10px 20px; cursor: pointer;
@@ -259,9 +259,7 @@
   @media (max-width: 640px) {
     section { padding: 64px 0; }
     /* wrap the full command on phones instead of truncating it */
-    .install { border-radius: 20px; }
-    .install .cmds span { white-space: normal; overflow-wrap: anywhere; }
-    .install .cmds { font-size: 0.72rem; line-height: 1.7; padding-left: 18px; }
+    .install .cmds { font-size: 0.74rem; padding-left: 20px; }
     .track { grid-template-columns: 1fr; gap: 0; padding-top: 6px; }
     .track .rail { left: 5px; top: 0; bottom: 0; right: auto; width: 2px; height: auto; }
     .track .rail .fill { transform-origin: top center; transform: scaleY(0); }
@@ -270,6 +268,12 @@
   }
   @media (max-width: 560px) {
     .keys { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 430px) {
+    /* small phones: keep the command on one readable line, copy becomes icon-only */
+    .copy-btn .ct { display: none; }
+    .copy-btn { padding: 10px 16px; }
+    .install .cmds { font-size: 0.66rem; padding-left: 16px; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -310,10 +314,9 @@
 
       <div class="install">
         <div class="cmds">
-          <span><span class="pr">&gt;</span> /plugin marketplace add mannanj/claude-cues</span>
-          <span><span class="pr">&gt;</span> /plugin install claude-cues@claude-cues</span>
+          <span><span class="pr">$</span> npx skills add mannanj/claude-cues</span>
         </div>
-        <button id="copy-btn" class="copy-btn" aria-label="Copy install commands">
+        <button id="copy-btn" class="copy-btn" aria-label="Copy install command">
           <span class="ct">copy</span>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <rect x="9" y="9" width="11" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7"/>
@@ -674,7 +677,7 @@
   /* ============================ brand + copy ============================ */
   document.getElementById("brand").addEventListener("click", function () { play("start", { force: true }); });
   document.getElementById("copy-btn").addEventListener("click", function () {
-    var cmds = "/plugin marketplace add mannanj/claude-cues\n/plugin install claude-cues@claude-cues";
+    var cmds = "npx skills add mannanj/claude-cues";
     navigator.clipboard.writeText(cmds).then(function () {
       var b = document.getElementById("copy-btn"), t = b.querySelector(".ct");
       b.classList.add("done"); if (t) t.textContent = "copied";
