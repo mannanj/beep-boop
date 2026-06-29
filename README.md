@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="beep boop" src="site/beepboop-wordmark.svg" width="360">
+  <img alt="beep boop" src="site/beeboop-wordmark.svg" width="360">
 </p>
 
 <p align="center">Lovable sounds for coding agents. Soft little chimes, hums, and pings<br>

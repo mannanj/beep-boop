@@ -56,7 +56,7 @@ as the package slug. No split to remember. The site lives at **beeboop.dev** (th
 
 | Context | Form | Example |
 |---|---|---|
-| Display / wordmark / lockup | `beepboop` — one custom word, the `p`+`b` fused into a scope-eye | the nav wordmark, favicon, OG |
+| Display / wordmark / lockup | `beeboop` — one custom word (matches the domain), middle `b` is a scope-eye | the nav wordmark, favicon, OG |
 | Prose / titles / sentence | **Beep Boop** | "Beep Boop gives your agent a voice." |
 | Technical: package, repo, command, dir | `beep-boop` (lowercase, hyphen) | `/plugin install beep-boop@beep-boop` |
 | Domain | **beeboop.dev** (drops the middle *p*) | the site |
@@ -169,15 +169,14 @@ addition is a custom wordmark that deepens the same idea (the wave), not a depar
 - **Mono everything structural.** The page reads like a small lit device.
 - **The hero is a playable instrument** — an amber oscilloscope you click to hear the
   cues. The demo is the argument. (See `DESIGN.md`.)
-- **Wordmark:** `beepboop` set as one custom geometric word. The two middle letters — the
-  `p` of *beep* and the `b` of *boop* — **fuse into a single tall glyph** (one stem carrying
-  both an ascender and a descender) whose bowl is a lit oscilloscope **eye**. The cue's
-  waveform lives *inside* that eye and scrolls live, so the logo literally *thinks*. Same
-  amber, same scope, same wave as the hero instrument — the mark *is* the promise, "hear it
-  think," compressed into one letter. Hand-built SVG, zero webfonts, degrades to a clean
-  static frame (and `prefers-reduced-motion`) when motion is off. Pull the eye out on its own
-  and you get the **app icon / favicon**. Files: [`site/beepboop-wordmark.svg`](site/beepboop-wordmark.svg),
-  [`site/icon.svg`](site/icon.svg).
+- **Wordmark:** `beeboop` set as one custom geometric word — it matches the domain (both drop
+  the middle *p*) and avoids the unfortunate "…poop" read a fused *pb* invites. Its middle
+  **`b`** is a lit oscilloscope **eye**: the cue's waveform lives *inside* that eye and scrolls
+  live, so the logo literally *thinks*. Same amber, same scope, same wave as the hero
+  instrument — the mark *is* the promise, "hear it think," in one letter. Hand-built SVG, zero
+  webfonts, degrades to a clean static frame (and `prefers-reduced-motion`) when motion is off.
+  Pull the eye-`b` out on its own and you get the **app icon / favicon**. Files:
+  [`site/beeboop-wordmark.svg`](site/beeboop-wordmark.svg), [`site/icon.svg`](site/icon.svg).
 
 ### Mark exploration — still on the shelf
 
