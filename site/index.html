@@ -8,7 +8,16 @@
 <meta property="og:title" content="Beep Boop: lovable sounds for coding agents">
 <meta property="og:description" content="Hear it think. Your coding agent gets six soft cues, one per moment. Audition every voice on a live oscilloscope, then install with one command.">
 <meta property="og:url" content="https://beeboop.dev">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://beeboop.dev/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://beeboop.dev/og.png">
 <meta name="theme-color" content="#0c0b0a">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <!--
   beep boop landing page.
   Concept: an amber-phosphor oscilloscope instrument. The hero is a real, working
@@ -61,11 +70,18 @@
 
   /* ---------- nav ---------- */
   nav { display: flex; justify-content: space-between; align-items: center; height: 70px; }
-  .brand { display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
-    font-family: var(--mono); font-weight: 600; font-size: 1.02rem; color: var(--text);
-    background: none; border: 0; padding: 0; letter-spacing: -0.01em; }
-  .brand svg { width: 22px; height: 16px; overflow: visible; }
-  .brand:hover .wv { stroke: var(--amber-hi); }
+  .brand { display: inline-flex; align-items: center; cursor: pointer;
+    background: none; border: 0; padding: 0; line-height: 0; }
+  /* the wordmark: fused "pb" is a lit scope-eye whose wave scrolls — the logo thinks */
+  .brand .wm { height: 19px; width: auto; overflow: visible; display: block;
+    transition: filter .18s var(--ease); }
+  .brand .wm-stroke, .brand .wm-eye { transition: stroke .15s, fill .15s; }
+  .brand:hover .wm-stroke { stroke: var(--amber-hi); }
+  .brand:hover .wm-eye { fill: var(--amber-hi); }
+  .brand:hover .wm { filter: drop-shadow(0 0 10px rgba(255,180,84,.35)); }
+  .wm-scroll { animation: wm-scope 2.6s linear infinite; }
+  @keyframes wm-scope { from { transform: translateX(0); } to { transform: translateX(-7.5px); } }
+  @media (prefers-reduced-motion: reduce) { .wm-scroll { animation: none; } }
   .nav-gh { display: inline-flex; align-items: center; gap: 16px;
     font-family: var(--mono); font-size: 0.84rem; color: var(--dim); }
   .nav-gh a { color: var(--dim); }
@@ -264,11 +280,27 @@
 
   <nav>
     <button class="brand" id="brand" aria-label="beep boop: play start sound">
-      <svg viewBox="0 0 22 16" fill="none" aria-hidden="true">
-        <path class="wv" d="M1 8 H4 L6 2 L9 14 L12 4 L15 11 L17 8 H21" stroke="#ffb454" stroke-width="1.6"
-          stroke-linecap="round" stroke-linejoin="round"/>
+      <svg class="wm" viewBox="-2 -1 136.20 30" fill="none" aria-hidden="true" focusable="false">
+        <defs><clipPath id="wmEye"><circle cx="66.10" cy="14" r="6.5"/></clipPath></defs>
+        <g class="wm-stroke" stroke="var(--amber)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="1.50" y1="2" x2="1.50" y2="21"/>
+          <circle cx="8.50" cy="14" r="7"/>
+          <path d="M 34.70 14 A 7 7 0 1 0 32.01 19.52"/>
+          <line x1="21.30" y1="14" x2="34.50" y2="14"/>
+          <path d="M 53.90 14 A 7 7 0 1 0 51.21 19.52"/>
+          <line x1="40.50" y1="14" x2="53.70" y2="14"/>
+          <line x1="59.10" y1="2" x2="59.10" y2="26"/>
+          <circle cx="85.30" cy="14" r="7"/>
+          <circle cx="104.50" cy="14" r="7"/>
+          <line x1="116.70" y1="7" x2="116.70" y2="26"/>
+          <circle cx="123.70" cy="14" r="7"/>
+        </g>
+        <circle class="wm-eye" cx="66.10" cy="14" r="7" fill="var(--amber)"/>
+        <g clip-path="url(#wmEye)"><g class="wm-scroll">
+          <path d="M51.10 14 L52.10 11.70 L53.10 10.92 L54.10 12.18 L55.10 14.64 L56.10 16.68 L57.10 16.95 L58.10 15.26 L59.10 12.74 L60.10 11.05 L61.10 11.32 L62.10 13.36 L63.10 15.82 L64.10 17.08 L65.10 16.30 L66.10 14 L67.10 11.70 L68.10 10.92 L69.10 12.18 L70.10 14.64 L71.10 16.68 L72.10 16.95 L73.10 15.26 L74.10 12.74 L75.10 11.05 L76.10 11.32 L77.10 13.36 L78.10 15.82 L79.10 17.08 L80.10 16.30 L81.10 14"
+            fill="none" stroke="var(--ink)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </g></g>
       </svg>
-      beep boop
     </button>
     <span class="nav-gh">
       <a href="https://github.com/mannanj/beep-boop" aria-label="GitHub stars">

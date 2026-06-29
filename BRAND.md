@@ -56,7 +56,7 @@ as the package slug. No split to remember. The site lives at **beeboop.dev** (th
 
 | Context | Form | Example |
 |---|---|---|
-| Display / wordmark / lockup | `beep boop` (lowercase, space, mono) | the nav wordmark |
+| Display / wordmark / lockup | `beepboop` — one custom word, the `p`+`b` fused into a scope-eye | the nav wordmark, favicon, OG |
 | Prose / titles / sentence | **Beep Boop** | "Beep Boop gives your agent a voice." |
 | Technical: package, repo, command, dir | `beep-boop` (lowercase, hyphen) | `/plugin install beep-boop@beep-boop` |
 | Domain | **beeboop.dev** (drops the middle *p*) | the site |
@@ -160,22 +160,31 @@ somewhere it doesn't.
 
 ## Look & identity
 
-The visual identity is **kept** from claude-cues — it's already excellent and earned its
-form by subtraction. The rebrand is a change of *voice and name*, not a redesign.
+The visual *system* is **kept** from claude-cues — it's already excellent and earned its
+form by subtraction. The rebrand is a change of *voice and name*, not a redesign. The one
+addition is a custom wordmark that deepens the same idea (the wave), not a departure.
 
 - **One accent:** phosphor amber `#ffb454` on a warm near-black `#0c0b0a`. No second
   color, no light mode.
 - **Mono everything structural.** The page reads like a small lit device.
 - **The hero is a playable instrument** — an amber oscilloscope you click to hear the
   cues. The demo is the argument. (See `DESIGN.md`.)
-- **Wordmark:** the amber waveform mark + `beep boop` in mono.
+- **Wordmark:** `beepboop` set as one custom geometric word. The two middle letters — the
+  `p` of *beep* and the `b` of *boop* — **fuse into a single tall glyph** (one stem carrying
+  both an ascender and a descender) whose bowl is a lit oscilloscope **eye**. The cue's
+  waveform lives *inside* that eye and scrolls live, so the logo literally *thinks*. Same
+  amber, same scope, same wave as the hero instrument — the mark *is* the promise, "hear it
+  think," compressed into one letter. Hand-built SVG, zero webfonts, degrades to a clean
+  static frame (and `prefers-reduced-motion`) when motion is off. Pull the eye out on its own
+  and you get the **app icon / favicon**. Files: [`site/beepboop-wordmark.svg`](site/beepboop-wordmark.svg),
+  [`site/icon.svg`](site/icon.svg).
 
-### Mark exploration (future, not now)
+### Mark exploration — still on the shelf
 
-Idea on the shelf: nest the waveform **inside a heart** — the soul of the product (the
-wave) wrapped in the new lovable register (the heart). It's a lovely bridge from the
-technical instrument to "Beep Boop." We are **not** changing the current mark yet; it's
-captured in [`tasks/heart-mark.md`](tasks/heart-mark.md) to play with later.
+The wordmark already realizes the old "wave as the product's soul" idea: the waveform now
+lives inside the name itself. Still unbuilt: nesting that wave **inside a heart** — the soul
+(the wave) wrapped in the lovable register (the heart). Captured in
+[`tasks/heart-mark.md`](tasks/heart-mark.md) to play with later; not shipped.
 
 ---
 

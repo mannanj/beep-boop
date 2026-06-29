@@ -1,4 +1,6 @@
-<h1 align="center">beep boop 🔉</h1>
+<p align="center">
+  <img alt="beep boop" src="site/beepboop-wordmark.svg" width="360">
+</p>
 
 <p align="center">Lovable sounds for coding agents. Soft little chimes, hums, and pings<br>
 that tell you what your agent is doing, without looking.</p>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -1 136.20 30" width="817" height="180" fill="none" role="img" aria-label="beep boop">
+  <style>
+    .s{stroke:#ffb454;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+    .eye{fill:#ffb454}
+    .wv{fill:none;stroke:#1a1206;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+    .scroll{animation:wm 2.6s linear infinite}
+    @keyframes wm{from{transform:translateX(0)}to{transform:translateX(-7.5px)}}
+    @media (prefers-reduced-motion:reduce){.scroll{animation:none}}
+  </style>
+  <defs><clipPath id="e"><circle cx="66.10" cy="14" r="6.5"/></clipPath></defs>
+  <g class="s">
+    <line x1="1.50" y1="2" x2="1.50" y2="21"/>
+    <circle cx="8.50" cy="14" r="7"/>
+    <path d="M 34.70 14 A 7 7 0 1 0 32.01 19.52"/>
+    <line x1="21.30" y1="14" x2="34.50" y2="14"/>
+    <path d="M 53.90 14 A 7 7 0 1 0 51.21 19.52"/>
+    <line x1="40.50" y1="14" x2="53.70" y2="14"/>
+    <line x1="59.10" y1="2" x2="59.10" y2="26"/>
+    <circle cx="85.30" cy="14" r="7"/>
+    <circle cx="104.50" cy="14" r="7"/>
+    <line x1="116.70" y1="7" x2="116.70" y2="26"/>
+    <circle cx="123.70" cy="14" r="7"/>
+  </g>
+  <circle class="eye" cx="66.10" cy="14" r="7"/>
+  <g clip-path="url(#e)"><g class="scroll"><path class="wv" d="M51.10 14 L52.10 11.70 L53.10 10.92 L54.10 12.18 L55.10 14.64 L56.10 16.68 L57.10 16.95 L58.10 15.26 L59.10 12.74 L60.10 11.05 L61.10 11.32 L62.10 13.36 L63.10 15.82 L64.10 17.08 L65.10 16.30 L66.10 14 L67.10 11.70 L68.10 10.92 L69.10 12.18 L70.10 14.64 L71.10 16.68 L72.10 16.95 L73.10 15.26 L74.10 12.74 L75.10 11.05 L76.10 11.32 L77.10 13.36 L78.10 15.82 L79.10 17.08 L80.10 16.30 L81.10 14"/></g></g>
+</svg>
