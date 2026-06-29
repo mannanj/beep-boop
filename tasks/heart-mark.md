@@ -2,7 +2,7 @@
 
 **Status:** queued (idea, parked) · 2026-06-28
 **Files:** `site/index.html` (nav `.brand` SVG), wherever the mark is reused
-**Origin:** During the Bee Boop rebrand, the idea came up to evolve the header icon —
+**Origin:** During the Beep Boop rebrand, the idea came up to evolve the header icon —
 take the existing amber **waveform** and nest it **inside a heart** (or similar lovable
 container). The user's call: *don't change the icon now, mark it as an idea to play with
 later.* So this is parked, not active.
@@ -10,14 +10,14 @@ later.* So this is parked, not active.
 ## The idea
 
 The current mark is a small amber oscilloscope waveform next to the wordmark. The wave is
-the soul of the product (sound made visible). The Bee Boop rebrand adds a *lovable*
+the soul of the product (sound made visible). The Beep Boop rebrand adds a *lovable*
 register. A **wave inside a heart** marries the two: what it does (the wave) wrapped in
-how it feels (the heart). A clean bridge from "technical instrument" to "Bee Boop."
+how it feels (the heart). A clean bridge from "technical instrument" to "Beep Boop."
 
 ## If/when we build it
 
 - Keep it **one accent** (phosphor amber `#ffb454`), mono-era simple, line-based — it has
-  to sit in a 22×16-ish mono lockup next to `bee boop` and still read at nav size and as
+  to sit in a 22×16-ish mono lockup next to `beep boop` and still read at nav size and as
   a favicon.
 - The heart should be a **light outline** that *contains* the waveform, not a filled
   emoji heart (filled reads cutesy and fights the restrained aesthetic). The wave stays

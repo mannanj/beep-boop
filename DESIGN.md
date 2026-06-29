@@ -1,4 +1,4 @@
-# bee boop — the landing page, codified
+# beep boop: the landing page, codified
 
 > This file protects `site/index.html`. The page reached its current form by
 > **subtraction** — read the git log: `Landing: the wave IS the sound control; drop
@@ -11,7 +11,7 @@
 ## The one idea
 
 **The page is a single playable instrument.** You arrive, you see an amber oscilloscope,
-you click it, you hear bee boop. That one gesture delivers the entire pitch at once:
+you click it, you hear beep boop. That one gesture delivers the entire pitch at once:
 the problem (you weren't watching), the solution (you heard it anyway), the proof (it's
 instant and pleasant), and the how (six moments, four voices). The demo is not a
 supporting element on the page. **The demo is the page.**
@@ -48,13 +48,14 @@ design.
   auditions itself as you read it.
 
 **Copy.**
-- H1: **"Hear it work."** (`work.` in amber). Three words. It is an instruction for the
-  instrument you are looking at, and it contains the product's whole soul: *sound* + *it
-  functions*.
-- Sub: one line — *"Bee Boop gives your coding agent a voice — six soft little sounds for
-  what it's doing, so you can look away and still know."*
+- H1: **"Hear it think."** (`think.` in amber). Three words, and an instruction for the
+  instrument you are looking at. "work" was the earlier line; "think" keeps the same
+  deictic form but sells a mind that is alive (presence, the brand soul) over a machine
+  that labors.
+- Sub: one line, *"Your agent runs silent. Beep Boop gives it six soft sounds, one per
+  move, so you can look away and it stays with you until your turn."*
 - Install: the two real `/plugin` commands in a dark pill with a quiet COPY.
-- Trust meta: one line — `macOS, Linux, ~200KB, zero deps · source`.
+- Trust meta: one line, `macOS, Linux, ~200KB, zero deps · source`.
 - Footer tag: *"made for people who'd rather listen than look."*
 
 **Aesthetic tokens** (one accent, one theme):
@@ -91,7 +92,7 @@ gesture, `focus-visible` rings, the scope is a real keyboard-operable `role="but
    makes the instrument feel precious and focused. Duplicating the controls elsewhere would
    cheapen them.
 
-5. **The headline points at the demo.** "Hear it work." is deixis — it refers to the thing
+5. **The headline points at the demo.** "Hear it think." is deixis: it refers to the thing
    on screen and tells you what to do with it. A headline that creates an immediate
    action-loop with the hero beats an abstract benefit slogan.
 
@@ -155,8 +156,9 @@ Run this before editing `site/index.html`. If you cannot pass it, do not make th
       design's whole history is subtraction; keep the vector pointing that way.
 - [ ] **Would this contradict "tiny, zero-deps, stays out of your way"?** A heavier page
       undercuts the product's own pitch.
-- [ ] **Headline:** does it still point at the demo and carry the product's soul? "Hear it
-      work." is load-bearing. Do not trade it for an abstract benefit slogan.
+- [ ] **Headline:** does it still point at the demo and carry the product's soul? The
+      deictic "Hear it ___" form is load-bearing ("Hear it think." today). Do not trade it
+      for an abstract benefit slogan.
 - [ ] **One accent, one theme, mono voice, zero dependencies, single file** — all still true?
 
 The correct mode for this page is **surgical**: tighten a line, fix a bug, improve a

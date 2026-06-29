@@ -1,8 +1,8 @@
-# Bee Boop — the brand, codified
+# Beep Boop: the brand, codified
 
 > **Lovable sounds for coding agents.**
 
-This is the north star for what Bee Boop *is* and how it should sound, read, and
+This is the north star for what Beep Boop *is* and how it should sound, read, and
 feel. It is the companion to [`DESIGN.md`](DESIGN.md), which codifies how
 the landing page is *built*. Brand here; page there.
 
@@ -10,7 +10,7 @@ the landing page is *built*. Brand here; page there.
 
 ## The one line
 
-**Bee Boop gives your coding agent a voice** — six soft little sounds for what it's
+**Beep Boop gives your coding agent a voice:** six soft little sounds for what it's
 doing, so you can look away and still know.
 
 If you only keep one sentence, keep that one.
@@ -23,7 +23,7 @@ Your coding agent works in total silence. It starts, thinks, finishes, asks, fai
 waits — and tells you none of it out loud. So you tab to another window, lose the
 thread, and come back twenty minutes later to a question it asked nineteen minutes ago.
 
-Bee Boop fixes that with **sound**. Six moments in every session get a soft, distinct
+Beep Boop fixes that with **sound**. Six moments in every session get a soft, distinct
 cue. You don't have to watch the terminal anymore — whether you're heads-down in it or
 off in another window, your ears tell you what's happening.
 
@@ -41,28 +41,28 @@ the one that saves the dead twenty minutes. Everything else is warmth around it.
 We tried naming the *mechanism* (claude-cues, Earshot, Earcon) and the *concept*
 (Chirp, Purr, Whistle). All were defensible; all felt like a naming exercise.
 
-**Bee Boop** names the *thing itself*. It is a cue, a notification, a little
-personality, and a smile in one word. It doesn't describe the product — it **is** the
-product. That's why it won.
+**Beep Boop** is the sound a machine makes when it talks to you. You hear it the moment
+you read it. The product gives a silent coding agent exactly that: its own beeps and
+boops. The name doesn't describe the product, it **is** the product. That's why it won.
 
-It's also bigger than any one tool. "claude-cues" boxed us into Claude Code. "Bee Boop"
+It's also bigger than any one tool. "claude-cues" boxed us into Claude Code. "Beep Boop"
 belongs to every coding agent.
 
-One deliberate split: we *say* **Bee Boop** (a little bee that boops — warm, with a bit
-of character), but the *machine* keeps **`beep-boop`** (the literal sound, a clean
-package slug). One name for people, one for code. The site lives at **beeboop.dev**.
+The name reads the same for people and for code: **Beep Boop** in a sentence, **`beep-boop`**
+as the package slug. No split to remember. The site lives at **beeboop.dev** (the middle
+*p* drops so the URL types clean).
 
-### Four forms of the name — use the right one
+### Four forms of the name
 
 | Context | Form | Example |
 |---|---|---|
-| Display / wordmark / lockup | `bee boop` (lowercase, space, mono) | the nav wordmark |
-| Prose / titles / sentence | **Bee Boop** | "Bee Boop gives your agent a voice." |
+| Display / wordmark / lockup | `beep boop` (lowercase, space, mono) | the nav wordmark |
+| Prose / titles / sentence | **Beep Boop** | "Beep Boop gives your agent a voice." |
 | Technical: package, repo, command, dir | `beep-boop` (lowercase, hyphen) | `/plugin install beep-boop@beep-boop` |
-| Domain | **beeboop.dev** (no hyphen, no *p*) | the site |
+| Domain | **beeboop.dev** (drops the middle *p*) | the site |
 
-Never "BeeBoop", "BEE BOOP", or "Bee-Boop" in prose. The display name is **Bee Boop**;
-only the technical slug keeps the *p*, as `beep-boop`.
+Never "BeepBoop", "BEEP BOOP", or "Beep-Boop" in prose. The display name is **Beep Boop**;
+the technical slug is **`beep-boop`**.
 
 ---
 
@@ -89,6 +89,8 @@ we never explain what a sound can just *show* you.
   unobtrusive as the tool.
 - **Lovable ≠ silly.** Charm comes from restraint and precision, not from emoji-spam or
   baby talk. One smile per surface, well placed.
+- **Human, not generated.** No em-dashes, no "not X, but Y" reversals, no filler adverbs.
+  If a line reads like an AI wrote it, cut it and say the plain thing.
 
 **Say:** *lovable, soft, little, gentle, hear, look away, your turn, sound alive,
 company, instrument.*
@@ -98,7 +100,7 @@ attention gap, productivity, never miss, supercharge, seamless, leverage.* (If i
 sounds like an alert utility or a SaaS deck, cut it.)
 
 > Old voice: "Get notified when your agent needs input."
-> Bee Boop voice: "Your agent is working. Hear it."
+> Beep Boop voice: "Your agent is working. Hear it."
 
 ---
 
@@ -117,7 +119,7 @@ goes stale, never mixing mid-session). Each voice covers the same six moments:
 | Context compacting | `precompact` | "Tidied up." |
 
 The four voices today: **chime** (bright), **hum** (warm), **ping** (dry), and **oak**
-(living). The first three are original tones synthesized for Bee Boop and dedicated to the
+(living). The first three are original tones synthesized for Beep Boop and dedicated to the
 public domain (**CC0**). **oak** is sampled from a recording of a 460-year-old cork oak's
 own bioelectric activity (modular synthesis tuned to 432 Hz) — see `sounds/CREDITS.md` for
 the source. New voices are just a folder of mp3s; PRs welcome.
@@ -130,7 +132,7 @@ precise instrument. Warmth lives in the voice around it, not in renaming its kno
 
 ## Graceful by rule
 
-This is part of the brand, not just the engineering. Bee Boop is **fire-and-forget**:
+This is part of the brand, not just the engineering. Beep Boop is **fire-and-forget**:
 every cue is backgrounded, never blocks a session, and **goes silent rather than
 failing**. No daemon, no network, no telemetry. ~200KB, zero dependencies. A tool made
 by someone who respects your terminal. That trustworthiness is a brand asset — lead with
@@ -166,13 +168,13 @@ form by subtraction. The rebrand is a change of *voice and name*, not a redesign
 - **Mono everything structural.** The page reads like a small lit device.
 - **The hero is a playable instrument** — an amber oscilloscope you click to hear the
   cues. The demo is the argument. (See `DESIGN.md`.)
-- **Wordmark:** the amber waveform mark + `bee boop` in mono.
+- **Wordmark:** the amber waveform mark + `beep boop` in mono.
 
 ### Mark exploration (future, not now)
 
 Idea on the shelf: nest the waveform **inside a heart** — the soul of the product (the
 wave) wrapped in the new lovable register (the heart). It's a lovely bridge from the
-technical instrument to "Bee Boop." We are **not** changing the current mark yet; it's
+technical instrument to "Beep Boop." We are **not** changing the current mark yet; it's
 captured in [`tasks/heart-mark.md`](tasks/heart-mark.md) to play with later.
 
 ---

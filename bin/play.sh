@@ -1,5 +1,5 @@
 #!/bin/bash
-# bee boop — lovable sound cues for coding agents.
+# beep boop: lovable sound cues for coding agents.
 # Called by Claude Code hooks: play.sh <event>
 #   events:      start | submit | done | permission | error | precompact
 #   subcommands: on | off | toggle | status

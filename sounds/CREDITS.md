@@ -2,10 +2,10 @@
 
 ## chime, hum, ping — original synthesis
 
-These three personalities are **original work**, synthesized for Bee Boop
+These three personalities are **original work**, synthesized for Beep Boop
 (pure-tone synthesis, encoded with ffmpeg). No game audio, no sample packs,
 no third-party recordings. Dedicated to the public domain under **CC0 1.0**
-(see [LICENSE](LICENSE)) — use them, remix them, ship them. Attribution
+(see [LICENSE](LICENSE)). Use them, remix them, ship them. Attribution
 appreciated, never required.
 
 ## oak — sampled from a living tree

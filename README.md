@@ -1,7 +1,7 @@
-<h1 align="center">bee boop 🔉</h1>
+<h1 align="center">beep boop 🔉</h1>
 
 <p align="center">Lovable sounds for coding agents. Soft little chimes, hums, and pings<br>
-that tell you what your agent is doing — without looking.</p>
+that tell you what your agent is doing, without looking.</p>
 
 <p align="center">
   <img alt="works with" src="https://img.shields.io/badge/Claude_Code-live-ffb454?labelColor=141210">
@@ -21,15 +21,15 @@ Your coding agent doesn't tell you when it finishes or needs permission. You tab
 lose the thread, and come back twenty minutes later to a question it asked nineteen
 minutes ago.
 
-**Bee Boop fixes that with sound.** Six moments in every session get a soft, distinct
-cue — so whether you're heads-down in the terminal or off in another window, your ears
+**Beep Boop fixes that with sound.** Six moments in every session get a soft, distinct
+cue, so whether you're heads-down in the terminal or off in another window, your ears
 tell you exactly what your agent is up to. A companion, not an alarm.
 
 It's ~200KB of original audio, one shell script, and zero dependencies. No daemon, no
-network, no telemetry, and it never blocks your agent — every sound is fire-and-forget.
+network, no telemetry, and it never blocks your agent; every sound is fire-and-forget.
 
 > **Which agents?** It runs on **Claude Code** today (its hooks fire the cues). The
-> engine is agent-agnostic — sounds plus a tiny player — so **Codex** and others are
+> engine is agent-agnostic (sounds plus a tiny player), so **Codex** and others are
 > next; each just needs its events wired.
 
 ## Install
@@ -41,7 +41,7 @@ Inside Claude Code:
 /plugin install beep-boop@beep-boop
 ```
 
-Restart Claude Code (or `/reload-plugins`). That's it — you'll hear it on your next session.
+Restart Claude Code (or `/reload-plugins`). That's it. You'll hear it on your next session.
 
 <details>
 <summary><strong>No <code>/plugin</code> support, or prefer a script?</strong></summary>
@@ -71,14 +71,14 @@ Remove everything with [`./uninstall.sh`](uninstall.sh).
 ## Personalities
 
 Every session gets **one consistent voice**, rotating session to session so it
-never goes stale — and never mixes voices mid-session.
+never goes stale, and never mixes voices mid-session.
 
 | | Character |
 |---|---|
 | **chime** | crisp, bright, bell-like |
 | **hum** | warm, low, rounded |
 | **ping** | minimal, dry, precise |
-| **oak** | warm, organic, alive — a living tree's voice |
+| **oak** | warm, organic, alive: a living tree's voice |
 
 **[Audition all four on the demo page →](https://beeboop.dev)**
 
@@ -91,7 +91,7 @@ sounds/<your-name>/{start,submit,done,permission,error,precompact}/*.mp3
 ```
 
 Drop one in and it joins the rotation automatically. Missing an event folder?
-That event is silent for that personality — it never borrows another voice.
+That event is silent for that personality; it never borrows another voice.
 PRs with new original (CC0) personalities are very welcome.
 
 ## Configure
@@ -110,7 +110,7 @@ PERSONALITY=hum    # pin one voice instead of rotating
 
 - Claude Code [hooks](https://code.claude.com/docs/en/hooks) call one small script: [`bin/play.sh`](bin/play.sh)
 - It picks a random sound from the session personality's folder for that event
-- Playback is backgrounded (`afplay` on macOS; `ffplay`/`mpg123`/`paplay` on Linux) — the hook returns instantly
+- Playback is backgrounded (`afplay` on macOS; `ffplay`/`mpg123`/`paplay` on Linux), so the hook returns instantly
 - No sound player found, or folder empty? Silent. It can never error your session.
 
 ## FAQ
@@ -118,12 +118,12 @@ PERSONALITY=hum    # pin one voice instead of rotating
 **Does it slow your agent down?** No. The hook backgrounds the player and
 returns immediately; there's no daemon and nothing to wait on.
 
-**Can I use my own sounds?** Yes — see [Make your own](#make-your-own).
+**Can I use my own sounds?** Yes. See [Make your own](#make-your-own).
 
 **Windows?** Not yet (the script no-ops silently). PRs welcome.
 
 **How do I mute just one event?** Delete or empty that event's folder in the
-personality — or pin a personality that doesn't define it.
+personality, or pin a personality that doesn't define it.
 
 **Will it play over my music?** It plays alongside; the cues are under a second
 each and mastered soft.
@@ -135,9 +135,9 @@ Plugin: `/plugin uninstall beep-boop`. Script install: `./uninstall.sh`.
 ## License
 
 Code is [MIT](LICENSE). The **chime**, **hum**, and **ping** personalities are
-original tones synthesized for Bee Boop and dedicated to the public domain under
+original tones synthesized for Beep Boop and dedicated to the public domain under
 [CC0](sounds/LICENSE). The **oak** personality is sampled from a recording of a
-living cork oak — see [credits](sounds/CREDITS.md) for its source and terms.
+living cork oak. See [credits](sounds/CREDITS.md) for its source and terms.
 
 Inspired by the walk-away problem everyone has with coding agents, and by
 [rubenflamshepherd/starcraft-claude](https://github.com/rubenflamshepherd/starcraft-claude),
