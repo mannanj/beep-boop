@@ -1,0 +1,13 @@
+{
+  // beeboop.dev is served by an assets-only Worker named "beeboop" (the static site/
+  // directory, no server code). This config is what makes the live deploy reproducible.
+  // Deploy the public site with:  wrangler deploy
+  // (The separate "beep-boop" Pages project is not what the domain points at.)
+  "name": "beeboop",
+  "compatibility_date": "2026-06-25",
+  "assets": { "directory": "./site" },
+  "routes": [
+    { "pattern": "beeboop.dev", "custom_domain": true },
+    { "pattern": "www.beeboop.dev", "custom_domain": true }
+  ]
+}
